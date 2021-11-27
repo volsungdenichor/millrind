@@ -11,6 +11,7 @@
 #include <millrind/macros.hpp>
 #include <millrind/opt.hpp>
 #include <millrind/output.hpp>
+#include <millrind/parse.hpp>
 #include <millrind/seq.hpp>
 #include <millrind/std_ostream.hpp>
 #include <random>
@@ -29,41 +30,28 @@ std::string add_quotes(const T& value)
     return str('"', value, '"');
 }
 
-std::string func(int a, int b)
-{
-    return add_quotes(add_spaces(millrind::str(10 * (a + b))));
-}
-
-template<class T>
-struct try_parse_fn
-{
-    [[nodiscard]] bool operator()(std::string_view txt, millrind::ref<T> value) const
-    {
-        std::stringstream ss{ std::string{ txt } };
-        ss >> value.get();
-        return static_cast<bool>(ss);
-    }
-
-    std::optional<T> operator()(std::string_view txt) const
-    {
-        T temp;
-        if ((*this)(txt, millrind::ref{ temp }))
-            return std::optional<T>{ std::move(temp) };
-        else
-            return std::nullopt;
-    }
-};
-
-template<class T>
-static constexpr inline auto try_parse = try_parse_fn<T>{};
-
-int main()
+void run()
 {
     using namespace millrind;
 
-    std::vector<int> results = { 1, 2, 3, 4, 5, 6 };
+    std::vector<std::string> results = { "1", "2", "3", "x33x" };
 
-    std::cout << delimit(find(results, 3), " ") << std::endl;
+    const auto f = seq::map(parse<int>)
+                   | seq::for_each(println);
+
+    f(results);
+}
+
+int main()
+{
+    try
+    {
+        run();
+    }
+    catch (std::exception& ex)
+    {
+        std::cerr << "exception caught: " << ex.what() << std::endl;
+    }
 
     return 0;
 }

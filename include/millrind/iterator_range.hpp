@@ -158,8 +158,7 @@ struct make_range_fn
     template<class Iter>
     constexpr auto operator()(std::pair<Iter, Iter> p) const -> iterator_range<Iter>
     {
-        auto [b, e] = p;
-        return (*this)(b, e);
+        return (*this)(std::get<0>(p), std::get<1>(p));
     }
 
     template<class Range>

@@ -5,8 +5,6 @@
 #include <sstream>
 #include <string_view>
 
-// #include "functions.hpp"
-
 namespace millrind
 {
 struct ostream_manipulator
@@ -75,7 +73,7 @@ private:
             {
                 if (it != begin)
                     os << separator;
-                os << call(proj, *it);
+                os << std::invoke(proj, *it);
             }
         } };
     }
