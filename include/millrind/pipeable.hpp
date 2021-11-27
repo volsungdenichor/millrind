@@ -143,23 +143,11 @@ struct pipe_fn
 
 struct tee_fn
 {
-    template<class Func>
-    struct impl
+    template<class T, class Func>
+    constexpr T&& operator()(T&& item, Func&& func) const
     {
-        Func func;
-
-        template<class T>
-        constexpr T&& operator()(T&& item) const
-        {
-            call(func, item);
-            return std::forward<T>(item);
-        }
-    };
-
-    template<class Func>
-    constexpr auto operator()(Func func) const
-    {
-        return pipeable_adaptor{ impl<Func>{ std::move(func) } };
+        call(std::forward<Func>(func), item);
+        return std::forward<T>(item);
     }
 };
 
@@ -180,6 +168,6 @@ using detail::pipeable;
 static constexpr inline auto pipe = detail::pipe_fn{};
 static constexpr inline auto fn = pipe;
 
-static constexpr inline auto tee = detail::tee_fn{};
+static constexpr inline auto tee = pipeable{ detail::tee_fn{} };
 
 }  // namespace millrind

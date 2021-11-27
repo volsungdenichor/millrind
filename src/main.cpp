@@ -17,27 +17,15 @@
 #include <random>
 #include <sstream>
 
-std::string add_spaces(std::string_view text, std::string_view separator = " ")
-{
-    using namespace millrind;
-    return str(delimit(text, separator));
-}
-
-template<class T>
-std::string add_quotes(const T& value)
-{
-    using namespace millrind;
-    return str('"', value, '"');
-}
-
 void run()
 {
     using namespace millrind;
 
-    std::vector<std::string> results = { "1", "2", "3", "x33x" };
+    std::vector<std::string> results = { "1", "2", "3", "x33x", "9" };
 
-    const auto f = seq::map(parse<int>)
-                   | seq::for_each(println);
+    const auto f = tee(L(println(delimit(_, " "))))
+                   | seq::adjacent()
+                   | seq::for_each([](auto&& a, auto&& b) { println(a, "-", b); });
 
     f(results);
 }

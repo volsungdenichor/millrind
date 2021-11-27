@@ -361,8 +361,8 @@ struct adjacent_transform_fn
     {
         return zip_transform_fn{}(
             ::millrind::detail::invoke_binary{ func, proj },
-            drop_fn<direction::left>{}(make_range(range), 1),
-            drop_fn<direction::right>{}(make_range(range), 1));
+            drop_fn<direction::right>{}(make_range(range), 1),
+            drop_fn<direction::left>{}(make_range(range), 1));
     }
 };
 
@@ -475,9 +475,11 @@ static constexpr inline auto take_if = pipeable{ detail::filter_fn<true>{} };
 static constexpr inline auto drop_if = pipeable{ detail::filter_fn<false>{} };
 static constexpr inline auto filter = take_if;
 static constexpr inline auto flat_map = pipeable{ detail::flat_map_fn{} };
+static constexpr inline auto transform_join = flat_map;
 static constexpr inline auto flatten = pipeable{ detail::flatten_fn{} };
 static constexpr inline auto join = flatten;
 static constexpr inline auto filter_map = pipeable{ detail::filter_map_fn{} };
+static constexpr inline auto transform_maybe = filter_map;
 static constexpr inline auto enumerate = pipeable{ detail::enumerate_fn{} };
 static constexpr inline auto reverse = pipeable{ detail::reverse_fn{} };
 
@@ -503,22 +505,22 @@ static constexpr inline auto trim_until = pipeable{ detail::drop_while_fn<detail
 
 static constexpr inline auto cached = pipeable{ detail::cached_fn{} };
 
+static constexpr inline auto adjacent = pipeable{ detail::adjacent_fn{} };
+static constexpr inline auto adjacent_transform = pipeable{ detail::adjacent_transform_fn{} };
+
+static constexpr inline auto copy = pipeable{ detail::copy_fn{} };
+static constexpr inline auto for_each = pipeable{ detail::for_each_fn{} };
+
+static constexpr inline auto front = pipeable{ detail::front_fn{} };
+
 static constexpr inline auto zip = detail::zip_fn{};
 static constexpr inline auto zip_transform = detail::zip_transform_fn{};
-
-static constexpr inline auto adjacent = detail::adjacent_fn{};
-static constexpr inline auto adjacent_transform = detail::adjacent_transform_fn{};
 
 static constexpr inline auto concat = detail::concat_fn{};
 static constexpr inline auto iota = detail::iota_fn{};
 static constexpr inline auto owned = detail::owned_fn{};
 static constexpr inline auto repeat = detail::repeat_fn{};
 static constexpr inline auto generate = detail::generate_fn{};
-
-static constexpr inline auto copy = pipeable{ detail::copy_fn{} };
-static constexpr inline auto for_each = pipeable{ detail::for_each_fn{} };
-
-static constexpr inline auto front = pipeable{ detail::front_fn{} };
 
 }  // namespace seq
 
