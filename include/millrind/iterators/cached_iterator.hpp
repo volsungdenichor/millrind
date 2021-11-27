@@ -20,7 +20,7 @@ public:
 
     cached_iterator(const cached_iterator&) = default;
 
-    decltype(auto) deref() const
+    auto deref() const -> iter_reference_t<Iter>
     {
         if (!_cache)
         {

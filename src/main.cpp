@@ -8,7 +8,6 @@
 #include <millrind/algorithm.hpp>
 #include <millrind/algorithm_ext.hpp>
 #include <millrind/format.hpp>
-#include <millrind/iterators/any_iterator.hpp>
 #include <millrind/macros.hpp>
 #include <millrind/opt.hpp>
 #include <millrind/output.hpp>
@@ -16,8 +15,6 @@
 #include <millrind/std_ostream.hpp>
 #include <random>
 #include <sstream>
-
-#include "predicates.hpp"
 
 std::string add_spaces(std::string_view text, std::string_view separator = " ")
 {
@@ -64,27 +61,9 @@ int main()
 {
     using namespace millrind;
 
-    std::vector<int> results;
+    std::vector<int> results = { 1, 2, 3, 4, 5, 6 };
 
-    const auto func = tee(L(results.push_back(_)))
-                      | fn(L(_ * 10))
-                      | fn(LIFT(add_quotes));
-
-    seq::generate([cur = 2]() mutable -> std::optional<int> {
-        if (cur > 100)
-        {
-            return std::nullopt;
-        }
-        else
-        {
-            auto temp = cur;
-            cur *= cur;
-            return temp;
-        } })
-        | seq::transform(func)
-        | seq::for_each(println);
-
-    println(delimit(results, ", "));
+    std::cout << delimit(find(results, 3), " ") << std::endl;
 
     return 0;
 }

@@ -14,6 +14,11 @@ namespace millrind
 {
 namespace detail
 {
+template<class T>
+constexpr auto equal_to(T value)
+{
+    return std::bind(std::equal_to{}, std::placeholders::_1, std::move(value));
+}
 template<class Func, class Proj1, class Proj2>
 struct invoke_binary
 {
@@ -117,8 +122,8 @@ Iter upper_bound(Iter b, Iter e, const T& value, Compare compare, Proj proj)
 template<class Iter, class T, class Compare, class Proj>
 auto equal_range(Iter b, Iter e, const T& value, Compare compare, Proj proj) -> iterator_range<Iter>
 {
-    return { lower_bound(b, e, value, ref{ compare }, ref{ proj }),
-             upper_bound(b, e, value, ref{ compare }, ref{ proj }) };
+    return { lower_bound(b, e, value, ref(compare), ref(proj)),
+             upper_bound(b, e, value, ref(compare), ref(proj)) };
 }
 
 template<class Iter, class Output, class BinaryFunc, class Proj>
@@ -154,7 +159,7 @@ auto adjacent_difference(Range&& range, OutputIter output, BinaryFunc func = {},
 {
     MILLRIND_CHECK_CONSTRAINT("adjacent_difference", range, input_range);
 
-    return detail::adjacent_difference(std::begin(range), std::end(range), output, ref{ func }, ref{ proj });
+    return detail::adjacent_difference(std::begin(range), std::end(range), output, ref(func), ref(proj));
 }
 
 template<class Range, class UnaryPred, class Proj = identity>
@@ -162,7 +167,7 @@ auto all_of(Range&& range, UnaryPred pred, Proj proj = {})
 {
     MILLRIND_CHECK_CONSTRAINT("all_of", range, input_range);
 
-    return std::all_of(std::begin(range), std::end(range), fn(ref{ proj }, ref{ pred }));
+    return std::all_of(std::begin(range), std::end(range), fn(ref(proj), ref(pred)));
 }
 
 template<class Range, class UnaryPred, class Proj = identity>
@@ -170,7 +175,7 @@ auto any_of(Range&& range, UnaryPred pred, Proj proj = {})
 {
     MILLRIND_CHECK_CONSTRAINT("any_of", range, input_range);
 
-    return std::any_of(std::begin(range), std::end(range), fn(ref{ proj }, ref{ pred }));
+    return std::any_of(std::begin(range), std::end(range), fn(ref(proj), ref(pred)));
 }
 
 template<class Range, class OutputIter>
@@ -186,7 +191,7 @@ auto copy_if(Range&& range, OutputIter output, UnaryPred pred, Proj proj = {})
 {
     MILLRIND_CHECK_CONSTRAINT("copy_if", range, input_range);
 
-    return std::copy_if(std::begin(range), std::end(range), output, fn(ref{ proj }, ref{ pred }));
+    return std::copy_if(std::begin(range), std::end(range), output, fn(ref(proj), ref(pred)));
 }
 
 template<class Range, class Size, class OutputIter>
@@ -202,7 +207,7 @@ auto count(Range&& range, const T& value, Proj proj = {})
 {
     MILLRIND_CHECK_CONSTRAINT("count", range, input_range);
 
-    return std::count_if(std::begin(range), std::end(range), fn(ref{ proj }, equal_to(ref{ value })));
+    return std::count_if(std::begin(range), std::end(range), fn(ref(proj), detail::equal_to(ref(value))));
 }
 
 template<class Range, class UnaryPred, class Proj = identity>
@@ -210,7 +215,7 @@ auto count_if(Range&& range, UnaryPred pred, Proj proj = {})
 {
     MILLRIND_CHECK_CONSTRAINT("count_if", range, input_range);
 
-    return std::count_if(std::begin(range), std::end(range), fn(ref{ proj }, ref{ pred }));
+    return std::count_if(std::begin(range), std::end(range), fn(ref(proj), ref(pred)));
 }
 
 template<class Range1, class Range2, class BinaryPred = std::equal_to<>, class Proj1 = identity, class Proj2 = identity>
@@ -224,7 +229,7 @@ auto equal(Range1&& range1, Range2&& range2, BinaryPred pred = {}, Proj1 proj1 =
         std::end(range1),
         std::begin(range2),
         std::end(range2),
-        detail::invoke_binary{ ref{ pred }, ref{ proj1 }, ref{ proj2 } });
+        detail::invoke_binary{ ref(pred), ref(proj1), ref(proj2) });
 }
 
 template<class Range, class T, class Compare = std::less<>, class Proj = identity>
@@ -232,13 +237,13 @@ auto equal_range(Range&& range, const T& value, Compare compare = {}, Proj proj 
 {
     MILLRIND_CHECK_CONSTRAINT("equal_range", range, forward_range);
 
-    return detail::equal_range(std::begin(range), std::end(range), value, ref{ compare }, ref{ proj });
+    return detail::equal_range(std::begin(range), std::end(range), value, ref(compare), ref(proj));
 }
 
 template<class Range, class Output, class T, class BinaryFunc, class Proj = identity>
 auto exclusive_scan(Range&& range, Output output, T init, BinaryFunc func, Proj proj = {})
 {
-    return std::transform_exclusive_scan(std::begin(range), std::end(range), output, init, ref{ func }, ref{ proj });
+    return std::transform_exclusive_scan(std::begin(range), std::end(range), output, init, ref(func), ref(proj));
 }
 
 template<class Range, class T>
@@ -255,7 +260,7 @@ decltype(auto) find(Range&& range, const T& value, Proj proj = {})
     MILLRIND_CHECK_CONSTRAINT("find", range, input_range);
 
     return detail::invoke_algorithm<Policy>(std::begin(range), std::end(range), [&](auto b, auto e) {
-        return std::find_if(b, e, fn(ref{ proj }, equal_to(ref{ value })));
+        return std::find_if(b, e, fn(ref(proj), detail::equal_to(ref(value))));
     });
 }
 
@@ -265,7 +270,7 @@ decltype(auto) find_if(Range&& range, UnaryPred pred, Proj proj = {})
     MILLRIND_CHECK_CONSTRAINT("find_if", range, input_range);
 
     return detail::invoke_algorithm<Policy>(std::begin(range), std::end(range), [&](auto b, auto e) {
-        return std::find_if(b, e, fn(ref{ proj }, ref{ pred }));
+        return std::find_if(b, e, fn(ref(proj), ref(pred)));
     });
 }
 
@@ -275,7 +280,7 @@ decltype(auto) find_if_not(Range&& range, UnaryPred pred, Proj proj = {})
     MILLRIND_CHECK_CONSTRAINT("find_if_not", range, input_range);
 
     return detail::invoke_algorithm<Policy>(std::begin(range), std::end(range), [&](auto b, auto e) {
-        return std::find_if_not(b, e, fn(ref{ proj }, ref{ pred }));
+        return std::find_if_not(b, e, fn(ref(proj), ref(pred)));
     });
 }
 
@@ -297,7 +302,7 @@ decltype(auto) find_end(Range1&& range1, Range2&& range2, BinaryPred pred = {}, 
             e,
             std::begin(range2),
             std::end(range2),
-            detail::invoke_binary{ ref{ pred }, ref{ proj1 }, ref{ proj2 } });
+            detail::invoke_binary{ ref(pred), ref(proj1), ref(proj2) });
     });
 }
 
@@ -319,7 +324,7 @@ decltype(auto) find_first_of(Range1&& range1, Range2&& range2, BinaryPred pred =
             e,
             std::begin(range2),
             std::end(range2),
-            detail::invoke_binary{ ref{ pred }, ref{ proj1 }, ref{ proj2 } });
+            detail::invoke_binary{ ref(pred), ref(proj1), ref(proj2) });
     });
 }
 
@@ -328,7 +333,7 @@ auto for_each(Range&& range, UnaryFunc func, Proj proj = {})
 {
     MILLRIND_CHECK_CONSTRAINT("for_each", range, input_range);
 
-    return std::for_each(std::begin(range), std::end(range), fn(ref{ proj }, ref{ func }));
+    return std::for_each(std::begin(range), std::end(range), fn(ref(proj), ref(func)));
 }
 
 template<class Range, class Generator>
@@ -356,13 +361,13 @@ auto includes(Range1&& range1, Range2&& range2, Compare compare = {}, Proj1 proj
         std::end(range1),
         std::begin(range2),
         std::end(range2),
-        detail::invoke_binary{ ref{ compare }, ref{ proj1 }, ref{ proj2 } });
+        detail::invoke_binary{ ref(compare), ref(proj1), ref(proj2) });
 }
 
 template<class Range, class Output, class BinaryFunc, class Proj = identity>
 auto inclusive_scan(Range&& range, Output output, BinaryFunc func, Proj proj = {})
 {
-    return std::transform_inclusive_scan(std::begin(range), std::end(range), output, ref{ func }, ref{ proj });
+    return std::transform_inclusive_scan(std::begin(range), std::end(range), output, ref(func), ref(proj));
 }
 
 template<
@@ -390,8 +395,8 @@ auto inner_product(
         std::end(range1),
         std::begin(range2),
         init,
-        ref{ func1 },
-        detail::invoke_binary{ ref{ func2 }, ref{ proj1 }, ref{ proj2 } });
+        ref(func1),
+        detail::invoke_binary{ ref(func2), ref(proj1), ref(proj2) });
 }
 
 template<class Range, class T>
@@ -407,7 +412,7 @@ auto is_heap(Range&& range, Compare compare = {}, Proj proj = {})
 {
     MILLRIND_CHECK_CONSTRAINT("is_heap", range, random_access_range);
 
-    return std::is_heap(std::begin(range), std::end(range), detail::invoke_binary{ ref{ compare }, ref{ proj } });
+    return std::is_heap(std::begin(range), std::end(range), detail::invoke_binary{ ref(compare), ref(proj) });
 }
 
 template<class Policy = default_return_policy, class Range, class Compare = std::less<>, class Proj = identity>
@@ -416,7 +421,7 @@ decltype(auto) is_heap_until(Range&& range, Compare compare = {}, Proj proj = {}
     MILLRIND_CHECK_CONSTRAINT("is_heap_until", range, random_access_range);
 
     return detail::invoke_algorithm<Policy>(std::begin(range), std::end(range), [&](auto b, auto e) {
-        return std::is_heap_until(b, e, detail::invoke_binary{ ref{ compare }, ref{ proj } });
+        return std::is_heap_until(b, e, detail::invoke_binary{ ref(compare), ref(proj) });
     });
 }
 
@@ -425,7 +430,7 @@ auto is_partitioned(Range&& range, UnaryPred pred, Proj proj = {})
 {
     MILLRIND_CHECK_CONSTRAINT("is_partitioned", range, input_range);
 
-    return std::is_partitioned(std::begin(range), std::end(range), fn(ref{ proj }, ref{ pred }));
+    return std::is_partitioned(std::begin(range), std::end(range), fn(ref(proj), ref(pred)));
 }
 
 template<class Range1, class Range2, class BinaryPred = std::equal_to<>, class Proj1 = identity, class Proj2 = identity>
@@ -438,7 +443,7 @@ auto is_permutation(Range1&& range1, Range2&& range2, BinaryPred pred = {}, Proj
         std::begin(range1),
         std::end(range1),
         std::begin(range2),
-        detail::invoke_binary{ ref{ pred }, ref{ proj1 }, ref{ proj2 } });
+        detail::invoke_binary{ ref(pred), ref(proj1), ref(proj2) });
 }
 
 template<class Range, class Compare = std::less<>, class Proj = identity>
@@ -446,7 +451,7 @@ auto is_sorted(Range&& range, Compare compare = {}, Proj proj = {})
 {
     MILLRIND_CHECK_CONSTRAINT("is_sorted", range, forward_range);
 
-    return std::is_sorted(std::begin(range), std::end(range), detail::invoke_binary{ ref{ compare }, ref{ proj } });
+    return std::is_sorted(std::begin(range), std::end(range), detail::invoke_binary{ ref(compare), ref(proj) });
 }
 
 template<class Policy = default_return_policy, class Range, class Compare = std::less<>, class Proj = identity>
@@ -455,7 +460,7 @@ decltype(auto) is_sorted_until(Range&& range, Compare compare = {}, Proj proj = 
     MILLRIND_CHECK_CONSTRAINT("is_sorted_until", range, forward_range);
 
     return detail::invoke_algorithm<Policy>(std::begin(range), std::end(range), [&](auto b, auto e) {
-        return std::is_sorted_until(b, e, detail::invoke_binary{ ref{ compare }, ref{ proj } });
+        return std::is_sorted_until(b, e, detail::invoke_binary{ ref(compare), ref(proj) });
     });
 }
 
@@ -470,7 +475,7 @@ auto lexicographical_compare(Range1&& range1, Range2&& range2, Compare compare =
         std::end(range1),
         std::begin(range2),
         std::end(range2),
-        detail::invoke_binary{ ref{ compare }, ref{ proj1 }, ref{ proj2 } });
+        detail::invoke_binary{ ref(compare), ref(proj1), ref(proj2) });
 }
 
 template<class Policy = default_return_policy, class Range, class T, class Compare = std::less<>, class Proj = identity>
@@ -479,7 +484,7 @@ decltype(auto) lower_bound(Range&& range, const T& value, Compare compare = {}, 
     MILLRIND_CHECK_CONSTRAINT("lower_bound", range, forward_range);
 
     return detail::invoke_algorithm<Policy>(std::begin(range), std::end(range), [&](auto b, auto e) {
-        return detail::lower_bound(b, e, value, ref{ compare }, ref{ proj });
+        return detail::lower_bound(b, e, value, ref(compare), ref(proj));
     });
 }
 
@@ -488,7 +493,7 @@ void make_heap(Range&& range, Compare compare = {}, Proj proj = {})
 {
     MILLRIND_CHECK_CONSTRAINT("make_heap", range, random_access_range);
 
-    std::make_heap(std::begin(range), std::end(range), detail::invoke_binary{ ref{ compare }, ref{ proj } });
+    std::make_heap(std::begin(range), std::end(range), detail::invoke_binary{ ref(compare), ref(proj) });
 }
 
 template<class Policy = default_return_policy, class Range, class Compare = std::less<>, class Proj = identity>
@@ -497,7 +502,7 @@ decltype(auto) max_element(Range&& range, Compare compare = {}, Proj proj = {})
     MILLRIND_CHECK_CONSTRAINT("max_element", range, forward_range);
 
     return detail::invoke_algorithm<Policy>(std::begin(range), std::end(range), [&](auto b, auto e) {
-        return std::max_element(b, e, detail::invoke_binary{ ref{ compare }, ref{ proj } });
+        return std::max_element(b, e, detail::invoke_binary{ ref(compare), ref(proj) });
     });
 }
 
@@ -519,7 +524,7 @@ auto merge(Range1&& range1, Range2&& range2, OutputIter output, Compare compare 
         std::begin(range2),
         std::end(range2),
         output,
-        detail::invoke_binary{ ref{ compare }, ref{ proj1 }, ref{ proj2 } });
+        detail::invoke_binary{ ref(compare), ref(proj1), ref(proj2) });
 }
 
 template<class Range, class Compare = std::less<>, class Proj = identity>
@@ -528,7 +533,7 @@ void inplace_merge(Range&& range, iterator_t<Range> middle, Compare compare = {}
     MILLRIND_CHECK_CONSTRAINT("inplace_merge", range, bidirectional_range);
 
     std::inplace_merge(
-        std::begin(range), middle, std::end(range), detail::invoke_binary{ ref{ compare }, ref{ proj } });
+        std::begin(range), middle, std::end(range), detail::invoke_binary{ ref(compare), ref(proj) });
 }
 
 template<class Policy = default_return_policy, class Range, class Compare = std::less<>, class Proj = identity>
@@ -538,7 +543,7 @@ auto minmax_element(Range&& range, Compare compare = {}, Proj proj = {})
 
     static const auto policy = Policy{};
     auto [b, e] = make_range(range);
-    auto [min, max] = std::minmax_element(b, e, detail::invoke_binary{ ref{ compare }, ref{ proj } });
+    auto [min, max] = std::minmax_element(b, e, detail::invoke_binary{ ref(compare), ref(proj) });
     return std::forward_as_tuple(policy(min, b, e), policy(max, b, e));
 }
 
@@ -548,7 +553,7 @@ decltype(auto) min_element(Range&& range, Compare compare = {}, Proj proj = {})
     MILLRIND_CHECK_CONSTRAINT("min_element", range, forward_range);
 
     return detail::invoke_algorithm<Policy>(std::begin(range), std::end(range), [&](auto b, auto e) {
-        return std::min_element(b, e, detail::invoke_binary{ ref{ compare }, ref{ proj } });
+        return std::min_element(b, e, detail::invoke_binary{ ref(compare), ref(proj) });
     });
 }
 
@@ -567,7 +572,7 @@ decltype(auto) mismatch(Range1&& range1, Range2&& range2, BinaryPred pred = {}, 
     static const auto policy = Policy{};
     auto [b1, e1] = make_range(range1);
     auto [b2, e2] = make_range(range2);
-    auto [b, e] = std::mismatch(b1, e1, b2, detail::invoke_binary{ ref{ pred }, ref{ proj1 }, ref{ proj2 } });
+    auto [b, e] = std::mismatch(b1, e1, b2, detail::invoke_binary{ ref(pred), ref(proj1), ref(proj2) });
     return std::forward_as_tuple(policy(b, b1, e1), policy(e, b2, e2));
 }
 
@@ -585,7 +590,7 @@ auto next_permutation(Range&& range, Compare compare = {}, Proj proj = {})
     MILLRIND_CHECK_CONSTRAINT("next_permuatation", range, bidirectional_range);
 
     return std::next_permutation(
-        std::begin(range), std::end(range), detail::invoke_binary{ ref{ compare }, ref{ proj } });
+        std::begin(range), std::end(range), detail::invoke_binary{ ref(compare), ref(proj) });
 }
 
 template<class Range, class UnaryPred, class Proj = identity>
@@ -593,7 +598,7 @@ auto none_of(Range&& range, UnaryPred pred, Proj proj = {})
 {
     MILLRIND_CHECK_CONSTRAINT("none_of", range, input_range);
 
-    return std::none_of(std::begin(range), std::end(range), fn(ref{ proj }, ref{ pred }));
+    return std::none_of(std::begin(range), std::end(range), fn(ref(proj), ref(pred)));
 }
 
 template<class Range, class Compare = std::less<>, class Proj = identity>
@@ -601,7 +606,7 @@ void nth_element(Range&& range, iterator_t<Range> middle, Compare compare = {}, 
 {
     MILLRIND_CHECK_CONSTRAINT("nth_element", range, random_access_range);
 
-    std::nth_element(std::begin(range), middle, std::end(range), detail::invoke_binary{ ref{ compare }, ref{ proj } });
+    std::nth_element(std::begin(range), middle, std::end(range), detail::invoke_binary{ ref(compare), ref(proj) });
 }
 
 template<class Range, class Compare = std::less<>, class Proj = identity>
@@ -610,7 +615,7 @@ void partial_sort(Range&& range, iterator_t<Range> middle, Compare compare = {},
     MILLRIND_CHECK_CONSTRAINT("partial_sort", range, random_access_range);
 
     std::partial_sort(
-        std::begin(range), middle, std::end(range), detail::invoke_binary{ ref{ compare }, ref{ proj } });
+        std::begin(range), middle, std::end(range), detail::invoke_binary{ ref(compare), ref(proj) });
 }
 template<
     class Policy = default_return_policy,
@@ -630,7 +635,7 @@ decltype(auto) partial_sort_copy(Range1&& range1, Range2&& range2, Compare compa
             std::end(range1),
             b,
             e,
-            detail::invoke_binary{ ref{ compare }, ref{ proj1 }, ref{ proj2 } });
+            detail::invoke_binary{ ref(compare), ref(proj1), ref(proj2) });
     });
 }
 
@@ -639,7 +644,7 @@ auto partial_sum(Range&& range, OutputIter output, BinaryFunc func = {}, Proj pr
 {
     MILLRIND_CHECK_CONSTRAINT("partial_sum", range, input_range);
 
-    return detail::partial_sum(std::begin(range), std::end(range), output, ref{ func }, ref{ proj });
+    return detail::partial_sum(std::begin(range), std::end(range), output, ref(func), ref(proj));
 }
 
 template<class Policy = default_return_policy, class Range, class UnaryPred, class Proj = identity>
@@ -648,7 +653,7 @@ decltype(auto) partition(Range&& range, UnaryPred pred, Proj proj = {})
     MILLRIND_CHECK_CONSTRAINT("partition", range, forward_range);
 
     return detail::invoke_algorithm<Policy>(std::begin(range), std::end(range), [&](auto b, auto e) {
-        return std::partition(b, e, fn(ref{ proj }, ref{ pred }));
+        return std::partition(b, e, fn(ref(proj), ref(pred)));
     });
 }
 
@@ -658,7 +663,7 @@ auto partition_copy(Range&& range, OutputIter1 result_true, OutputIter2 result_f
     MILLRIND_CHECK_CONSTRAINT("partition_copy", range, input_range);
 
     return std::partition_copy(
-        std::begin(range), std::end(range), result_true, result_false, fn(ref{ proj }, ref{ pred }));
+        std::begin(range), std::end(range), result_true, result_false, fn(ref(proj), ref(pred)));
 }
 
 template<class Policy = default_return_policy, class Range, class UnaryPred, class Proj = identity>
@@ -667,7 +672,7 @@ decltype(auto) stable_partition(Range&& range, UnaryPred pred, Proj proj = {})
     MILLRIND_CHECK_CONSTRAINT("stable_partition", range, bidirectional_range);
 
     return detail::invoke_algorithm<Policy>(std::begin(range), std::end(range), [&](auto b, auto e) {
-        return std::stable_partition(b, e, fn(ref{ proj }, ref{ pred }));
+        return std::stable_partition(b, e, fn(ref(proj), ref(pred)));
     });
 }
 
@@ -677,7 +682,7 @@ auto prev_permutation(Range&& range, Compare compare = {}, Proj proj = {})
     MILLRIND_CHECK_CONSTRAINT("prev_permutation", range, bidirectional_range);
 
     return std::prev_permutation(
-        std::begin(range), std::end(range), detail::invoke_binary{ ref{ compare }, ref{ proj } });
+        std::begin(range), std::end(range), detail::invoke_binary{ ref(compare), ref(proj) });
 }
 
 template<class Range, class Compare = std::less<>, class Proj = identity>
@@ -685,13 +690,13 @@ void push_heap(Range&& range, Compare compare = {}, Proj proj = {})
 {
     MILLRIND_CHECK_CONSTRAINT("push_heap", range, random_access_range);
 
-    std::push_heap(std::begin(range), std::end(range), detail::invoke_binary{ ref{ compare }, ref{ proj } });
+    std::push_heap(std::begin(range), std::end(range), detail::invoke_binary{ ref(compare), ref(proj) });
 }
 
 template<class Range, class T, class BinaryFunc = std::plus<>, class Proj = identity>
 auto reduce(Range&& range, T init, BinaryFunc func = {}, Proj proj = {})
 {
-    return std::transform_reduce(std::begin(range), std::end(range), std::move(init), ref{ func }, ref{ proj });
+    return std::transform_reduce(std::begin(range), std::end(range), std::move(init), ref(func), ref(proj));
 }
 
 template<class Policy = default_return_policy, class Range, class T, class Proj = identity>
@@ -700,7 +705,7 @@ decltype(auto) remove(Range&& range, const T& value, Proj proj = {})
     MILLRIND_CHECK_CONSTRAINT("remove", range, forward_range);
 
     return detail::invoke_algorithm<Policy>(std::begin(range), std::end(range), [&](auto b, auto e) {
-        return std::remove_if(b, e, fn(ref{ proj }, equal_to(ref{ value })));
+        return std::remove_if(b, e, fn(ref(proj), detail::equal_to(ref(value))));
     });
 }
 
@@ -710,7 +715,7 @@ decltype(auto) remove_if(Range&& range, UnaryPred pred, Proj proj = {})
     MILLRIND_CHECK_CONSTRAINT("remove_if", range, forward_range);
 
     return detail::invoke_algorithm<Policy>(std::begin(range), std::end(range), [&](auto b, auto e) {
-        return std::remove_if(b, e, fn(ref{ proj }, ref{ pred }));
+        return std::remove_if(b, e, fn(ref(proj), ref(pred)));
     });
 }
 
@@ -719,7 +724,7 @@ auto remove_copy(Range&& range, OutputIter output, const T& value, Proj proj = {
 {
     MILLRIND_CHECK_CONSTRAINT("remove_copy", range, input_range);
 
-    return std::remove_copy_if(std::begin(range), std::end(range), output, fn(ref{ proj }, equal_to(ref{ value })));
+    return std::remove_copy_if(std::begin(range), std::end(range), output, fn(ref(proj), detail::equal_to(ref(value))));
 }
 
 template<class Range, class OutputIter, class UnaryPred, class Proj = identity>
@@ -727,7 +732,7 @@ auto remove_copy_if(Range&& range, OutputIter output, UnaryPred pred, Proj proj 
 {
     MILLRIND_CHECK_CONSTRAINT("remove_copy_if", range, input_range);
 
-    return std::remove_copy_if(std::begin(range), std::end(range), output, fn(ref{ proj }, ref{ pred }));
+    return std::remove_copy_if(std::begin(range), std::end(range), output, fn(ref(proj), ref(pred)));
 }
 
 template<class Range, class T1, class T2, class Proj = identity>
@@ -735,7 +740,7 @@ void raplace(Range&& range, const T1& old_value, const T2& new_value, Proj proj 
 {
     MILLRIND_CHECK_CONSTRAINT("replace", range, forward_range);
 
-    std::replace_if(std::begin(range), std::end(range), fn(ref{ proj }, equal_to(ref{ old_value })), new_value);
+    std::replace_if(std::begin(range), std::end(range), fn(ref(proj), detail::equal_to(ref(old_value))), new_value);
 }
 
 template<class Range, class UnaryPred, class T, class Proj = identity>
@@ -743,7 +748,7 @@ void raplace_if(Range&& range, UnaryPred pred, const T& new_value, Proj proj = {
 {
     MILLRIND_CHECK_CONSTRAINT("replace_if", range, forward_range);
 
-    std::replace_if(std::begin(range), std::end(range), fn(ref{ proj }, ref{ pred }), new_value);
+    std::replace_if(std::begin(range), std::end(range), fn(ref(proj), ref(pred)), new_value);
 }
 
 template<class Range, class OutputIter, class T1, class T2, class Proj = identity>
@@ -752,7 +757,7 @@ auto replace_copy(Range&& range, OutputIter output, const T1& old_value, const T
     MILLRIND_CHECK_CONSTRAINT("replace_copy", range, input_range);
 
     return std::replace_copy_if(
-        std::begin(range), std::end(range), output, fn(ref{ proj }, equal_to(ref{ old_value })), new_value);
+        std::begin(range), std::end(range), output, fn(ref(proj), detail::equal_to(ref(old_value))), new_value);
 }
 
 template<class Range, class OutputIter, class UnaryPred, class T, class Proj = identity>
@@ -760,7 +765,7 @@ auto replace_copy_if(Range&& range, OutputIter output, UnaryPred pred, const T& 
 {
     MILLRIND_CHECK_CONSTRAINT("replace_copy_if", range, input_range);
 
-    return std::replace_copy_if(std::begin(range), std::end(range), output, fn(ref{ proj }, ref{ pred }), new_value);
+    return std::replace_copy_if(std::begin(range), std::end(range), output, fn(ref(proj), ref(pred)), new_value);
 }
 
 template<class Range>
@@ -815,7 +820,7 @@ decltype(auto) search(Range1&& range1, Range2&& range2, BinaryPred pred = {}, Pr
             e,
             std::begin(range2),
             std::end(range2),
-            detail::invoke_binary{ ref{ pred }, ref{ proj1 }, ref{ proj2 } });
+            detail::invoke_binary{ ref(pred), ref(proj1), ref(proj2) });
     });
 }
 
@@ -868,7 +873,7 @@ decltype(auto) search_n(Range&& range, Size size, const T& value, BinaryPred pre
     MILLRIND_CHECK_CONSTRAINT("search_n", range, forward_range);
 
     return detail::invoke_algorithm<Policy>(std::begin(range), std::end(range), [&](auto b, auto e) {
-        return std::search_n(b, e, size, value, detail::invoke_binary{ ref{ pred }, ref{ proj } });
+        return std::search_n(b, e, size, value, detail::invoke_binary{ ref(pred), ref(proj) });
     });
 }
 
@@ -891,7 +896,7 @@ auto set_difference(
         std::begin(range2),
         std::end(range2),
         output,
-        detail::invoke_binary{ ref{ compare }, ref{ proj1 }, ref{ proj2 } });
+        detail::invoke_binary{ ref(compare), ref(proj1), ref(proj2) });
 }
 
 template<
@@ -913,7 +918,7 @@ auto set_intersection(
         std::begin(range2),
         std::end(range2),
         output,
-        detail::invoke_binary{ ref{ compare }, ref{ proj1 }, ref{ proj2 } });
+        detail::invoke_binary{ ref(compare), ref(proj1), ref(proj2) });
 }
 
 template<
@@ -935,7 +940,7 @@ auto set_symmetric_difference(
         std::begin(range2),
         std::end(range2),
         output,
-        detail::invoke_binary{ ref{ compare }, ref{ proj1 }, ref{ proj2 } });
+        detail::invoke_binary{ ref(compare), ref(proj1), ref(proj2) });
 }
 
 template<
@@ -956,7 +961,7 @@ auto set_union(Range1&& range1, Range2&& range2, OutputIter output, Compare comp
         std::begin(range2),
         std::end(range2),
         output,
-        detail::invoke_binary{ ref{ compare }, ref{ proj1 }, ref{ proj2 } });
+        detail::invoke_binary{ ref(compare), ref(proj1), ref(proj2) });
 }
 
 template<class Range, class RandomNumberGenerator>
@@ -972,7 +977,7 @@ void sort(Range&& range, Compare compare = {}, Proj proj = {})
 {
     MILLRIND_CHECK_CONSTRAINT("sort", range, random_access_range);
 
-    std::sort(std::begin(range), std::end(range), detail::invoke_binary{ ref{ compare }, ref{ proj } });
+    std::sort(std::begin(range), std::end(range), detail::invoke_binary{ ref(compare), ref(proj) });
 }
 
 template<class Range, class Compare = std::less<>, class Proj = identity>
@@ -980,7 +985,7 @@ void stable_sort(Range&& range, Compare compare = {}, Proj proj = {})
 {
     MILLRIND_CHECK_CONSTRAINT("stable_sort", range, random_access_range);
 
-    std::stable_sort(std::begin(range), std::end(range), detail::invoke_binary{ ref{ compare }, ref{ proj } });
+    std::stable_sort(std::begin(range), std::end(range), detail::invoke_binary{ ref(compare), ref(proj) });
 }
 
 template<class Range, class OutputIter, class UnaryFunc, class Proj = identity>
@@ -988,7 +993,7 @@ auto transform(Range&& range, OutputIter output, UnaryFunc func, Proj proj = {})
 {
     MILLRIND_CHECK_CONSTRAINT("transform", range, input_range);
 
-    return std::transform(std::begin(range), std::end(range), output, fn(ref{ proj }, ref{ func }));
+    return std::transform(std::begin(range), std::end(range), output, fn(ref(proj), ref(func)));
 }
 
 template<
@@ -1009,25 +1014,25 @@ auto transform(Range1&& range1, Range2&& range2, OutputIter output, BinaryFunc f
         std::end(range1),
         std::begin(range2),
         output,
-        detail::invoke_binary{ ref{ func }, ref{ proj1 }, ref{ proj2 } });
+        detail::invoke_binary{ ref(func), ref(proj1), ref(proj2) });
 }
 
 template<class Range, class Output, class T, class BinaryFunc, class UnaryFunc, class Proj = identity>
 auto transform_exclusive_scan(Range&& range, Output output, T init, BinaryFunc func, UnaryFunc op, Proj proj = {})
 {
-    return std::transform_exclusive_scan(std::begin(range), std::end(range), output, init, func, fn(ref{ proj }, ref{ op }));
+    return std::transform_exclusive_scan(std::begin(range), std::end(range), output, init, func, fn(ref(proj), ref(op)));
 }
 
 template<class Range, class Output, class BinaryFunc, class UnaryFunc, class Proj = identity>
 auto transform_inclusive_scan(Range&& range, Output output, BinaryFunc func, UnaryFunc op, Proj proj = {})
 {
-    return std::transform_inclusive_scan(std::begin(range), std::end(range), output, ref{ func }, fn(ref{ proj }, ref{ op }));
+    return std::transform_inclusive_scan(std::begin(range), std::end(range), output, ref(func), fn(ref(proj), ref(op)));
 }
 
 template<class Range, class T, class BinaryFunc, class UnaryFunc, class Proj = identity>
 auto transform_reduce(Range&& range, T init, BinaryFunc func, UnaryFunc op, Proj proj = {})
 {
-    return std::transform_reduce(std::begin(range), std::end(range), std::move(init), ref{ func }, fn(ref{ proj }, ref{ op }));
+    return std::transform_reduce(std::begin(range), std::end(range), std::move(init), ref(func), fn(ref(proj), ref(op)));
 }
 
 template<class Policy = default_return_policy, class Range, class BinaryPred = std::equal_to<>, class Proj = identity>
@@ -1036,7 +1041,7 @@ decltype(auto) unique(Range&& range, BinaryPred pred = {}, Proj proj = {})
     MILLRIND_CHECK_CONSTRAINT("unique", range, forward_range);
 
     return detail::invoke_algorithm<Policy>(std::begin(range), std::end(range), [&](auto b, auto e) {
-        return std::unique(b, e, detail::invoke_binary{ ref{ pred }, ref{ proj } });
+        return std::unique(b, e, detail::invoke_binary{ ref(pred), ref(proj) });
     });
 }
 
@@ -1046,7 +1051,7 @@ auto unique_copy(Range&& range, OutputIter output, BinaryPred pred = {}, Proj pr
     MILLRIND_CHECK_CONSTRAINT("unique_copy", range, forward_range);
 
     return std::unique_copy(
-        std::begin(range), std::end(range), output, detail::invoke_binary{ ref{ pred }, ref{ proj } });
+        std::begin(range), std::end(range), output, detail::invoke_binary{ ref(pred), ref(proj) });
 }
 
 template<class Policy = default_return_policy, class Range, class T, class Compare = std::less<>, class Proj = identity>
@@ -1055,7 +1060,7 @@ decltype(auto) upper_bound(Range&& range, const T& value, Compare compare = {}, 
     MILLRIND_CHECK_CONSTRAINT("upper_bound", range, forward_range);
 
     return detail::invoke_algorithm<Policy>(std::begin(range), std::end(range), [&](auto b, auto e) {
-        return detail::upper_bound(b, e, value, ref{ compare }, ref{ proj });
+        return detail::upper_bound(b, e, value, ref(compare), ref(proj));
     });
 }
 

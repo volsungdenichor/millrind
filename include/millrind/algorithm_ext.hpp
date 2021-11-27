@@ -45,7 +45,7 @@ auto transform_if(Range&& range, Output output, Func func, UnaryPred pred, Proj 
 {
     MILLRIND_CHECK_CONSTRAINT("transform_if", range, input_range);
 
-    return detail::transform_if(std::begin(range), std::end(range), output, ref{ func }, fn(ref{ proj }, ref{ pred }));
+    return detail::transform_if(std::begin(range), std::end(range), output, ref(func), fn(ref(proj), ref(pred)));
 }
 
 template<class Range, class Output, class UnaryPred, class Proj = identity>
@@ -53,7 +53,7 @@ auto copy_while(Range&& range, Output output, UnaryPred pred, Proj proj = {})
 {
     MILLRIND_CHECK_CONSTRAINT("copy_while", range, input_range);
 
-    return detail::copy_while(std::begin(range), std::end(range), output, fn(ref{ proj }, ref{ pred }));
+    return detail::copy_while(std::begin(range), std::end(range), output, fn(ref(proj), ref(pred)));
 }
 
 template<class Range, class Output, class UnaryPred, class Proj = identity>
@@ -61,7 +61,7 @@ auto copy_until(Range&& range, Output output, UnaryPred pred, Proj proj = {})
 {
     MILLRIND_CHECK_CONSTRAINT("copy_until", range, input_range);
 
-    return detail::copy_while(std::begin(range), std::end(range), output, std::not_fn(fn(ref{ proj }, ref{ pred })));
+    return detail::copy_while(std::begin(range), std::end(range), output, std::not_fn(fn(ref(proj), ref(pred))));
 }
 
 template<class Range, class Dest>
@@ -77,7 +77,7 @@ auto transform_overwrite(Range&& range, Dest&& dest, UnaryFunc func, Proj proj =
 {
     MILLRIND_CHECK_CONSTRAINT("copy_transform_overwrite", range, input_range);
 
-    return detail::overwrite(std::begin(range), std::end(range), std::begin(dest), std::end(dest), fn(ref{ proj }, ref{ func }));
+    return detail::overwrite(std::begin(range), std::end(range), std::begin(dest), std::end(dest), fn(ref(proj), ref(func)));
 }
 
 template<class Range, class BinaryPred = std::equal_to<>, class Proj = identity>
@@ -98,7 +98,7 @@ bool starts_with(Range1&& range1, Range2&& range2, BinaryPred pred = {}, Proj1 p
 
     auto r1 = make_range(range1);
     auto r2 = make_range(range2);
-    return search<return_found>(r1, r2, ref{ pred }, ref{ proj1 }, ref{ proj2 }) == std::begin(r1);
+    return search<return_found>(r1, r2, ref(pred), ref(proj1), ref(proj2)) == std::begin(r1);
 }
 
 }  // namespace millrind
