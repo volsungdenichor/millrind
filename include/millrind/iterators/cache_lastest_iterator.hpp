@@ -7,18 +7,18 @@
 namespace millrind
 {
 template<class Iter>
-class cached_iterator : public iterator_facade<cached_iterator<Iter>>
+class cache_latest_iterator : public iterator_facade<cache_latest_iterator<Iter>>
 {
 public:
-    cached_iterator() = default;
+    cache_latest_iterator() = default;
 
-    cached_iterator(Iter iter)
+    cache_latest_iterator(Iter iter)
         : _iter{ std::move(iter) },
           _cache{}
     {
     }
 
-    cached_iterator(const cached_iterator&) = default;
+    cache_latest_iterator(const cache_latest_iterator&) = default;
 
     auto deref() const -> iter_reference_t<Iter>
     {
@@ -42,13 +42,13 @@ public:
         --_iter;
     }
 
-    bool is_equal(const cached_iterator& other) const
+    bool is_equal(const cache_latest_iterator& other) const
     {
         return _iter == other._iter;
     }
 
     template<class It = Iter, class = random_access_iterator<It>>
-    bool is_less(const cached_iterator& other) const
+    bool is_less(const cache_latest_iterator& other) const
     {
         return _iter < other._iter;
     }
@@ -61,7 +61,7 @@ public:
     }
 
     template<class It = Iter, class = random_access_iterator<It>>
-    auto distance_to(const cached_iterator& other) const
+    auto distance_to(const cache_latest_iterator& other) const
     {
         return other._iter - _iter;
     }
@@ -78,4 +78,4 @@ private:
 
 }  // namespace millrind
 
-MILLRIND_ITERATOR_TRAITS(::millrind::cached_iterator)
+MILLRIND_ITERATOR_TRAITS(::millrind::cache_latest_iterator)

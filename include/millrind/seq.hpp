@@ -3,7 +3,7 @@
 #include "algorithm.hpp"
 #include "iterator_range.hpp"
 #include "iterators/any_iterator.hpp"
-#include "iterators/cached_iterator.hpp"
+#include "iterators/cache_lastest_iterator.hpp"
 #include "iterators/chain_iterator.hpp"
 #include "iterators/enumerating_iterator.hpp"
 #include "iterators/filter_iterator.hpp"
@@ -281,7 +281,10 @@ struct enumerate_fn
     {
         using result_type = enumerating_iterator<Iter>;
 
-        return make_range(result_type{ b, start }, result_type{ e, start + std::distance(b, e) });
+        if constexpr (is_detected_v<random_access_iterator, Iter>)
+            return make_range(result_type{ b, start }, result_type{ e, start + std::distance(b, e) });
+        else
+            return make_range(result_type{ b, start }, result_type{ e });
     }
 };
 
@@ -437,7 +440,7 @@ struct for_each_fn
     }
 };
 
-struct cached_fn
+struct cache_latest_fn
 {
     template<class Range>
     auto operator()(Range&& range) const
@@ -448,7 +451,7 @@ struct cached_fn
     template<class Iter>
     auto create(Iter b, Iter e) const
     {
-        using result_type = cached_iterator<Iter>;
+        using result_type = cache_latest_iterator<Iter>;
         return make_range(result_type{ b }, result_type{ e });
     }
 };
@@ -503,7 +506,7 @@ static constexpr inline auto trim = pipeable{ detail::drop_fn<detail::direction:
 static constexpr inline auto trim_while = pipeable{ detail::drop_while_fn<detail::direction::both, true>{} };
 static constexpr inline auto trim_until = pipeable{ detail::drop_while_fn<detail::direction::both, false>{} };
 
-static constexpr inline auto cached = pipeable{ detail::cached_fn{} };
+static constexpr inline auto cache_latest = pipeable{ detail::cache_latest_fn{} };
 
 static constexpr inline auto adjacent = pipeable{ detail::adjacent_fn{} };
 static constexpr inline auto adjacent_transform = pipeable{ detail::adjacent_transform_fn{} };

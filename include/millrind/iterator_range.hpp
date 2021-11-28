@@ -122,7 +122,6 @@ public:
         return *std::prev(end());
     }
 
-#if 0
     constexpr explicit operator bool() const
     {
         return !empty();
@@ -132,7 +131,6 @@ public:
     {
         return front();
     }
-#endif
 
     template<class It = iterator, class = random_access_iterator<It>>
     constexpr reference operator[](difference_type offset) const

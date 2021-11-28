@@ -16,24 +16,30 @@ public:
     {
     }
 
+    enumerating_iterator(Iter iter)
+        : _iter{ std::move(iter) },
+          _index{}
+    {
+    }
+
     enumerating_iterator(const enumerating_iterator&) = default;
 
     auto deref() const -> std::pair<std::ptrdiff_t, iter_reference_t<Iter>>
     {
-        return { _index, *_iter };
+        return { *_index, *_iter };
     }
 
     void inc()
     {
         ++_iter;
-        ++_index;
+        ++*_index;
     }
 
     template<class It = Iter, class = bidirectional_iterator<It>>
     void dec()
     {
         --_iter;
-        --_index;
+        --*_index;
     }
 
     bool is_equal(const enumerating_iterator& other) const
@@ -51,7 +57,7 @@ public:
     void advance(std::ptrdiff_t offset)
     {
         _iter += offset;
-        _index += offset;
+        *_index += offset;
     }
 
     template<class It = Iter, class = random_access_iterator<It>>
@@ -62,7 +68,7 @@ public:
 
 private:
     Iter _iter;
-    std::ptrdiff_t _index;
+    std::optional<std::ptrdiff_t> _index;
 };
 
 }  // namespace millrind
