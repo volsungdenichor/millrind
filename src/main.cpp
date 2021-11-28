@@ -20,8 +20,6 @@
 template<class T>
 constexpr auto yield_if(bool condition, T value)
 {
-    if (condition)
-        std::cout << " > " << value << std::endl;
     return millrind::seq::repeat(std::move(value), condition ? 1 : 0);
 }
 
@@ -48,6 +46,7 @@ void run()
     pythagorean_triples()
         | seq::take(10)
         | seq::enumerate()
+        | seq::drop(3)
         | seq::for_each(
             [](auto&& index, auto&& triple) {
                 const auto [x, y, z] = std::move(triple);

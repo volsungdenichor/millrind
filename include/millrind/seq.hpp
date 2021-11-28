@@ -16,7 +16,6 @@
 #include "iterators/owning_iterator.hpp"
 #include "iterators/repeat_iterator.hpp"
 #include "iterators/stride_iterator.hpp"
-#include "iterators/take_iterator.hpp"
 #include "iterators/zip_transform_iterator.hpp"
 
 namespace millrind
@@ -89,16 +88,27 @@ struct take_fn
     {
         if constexpr (Dir == direction::left)
         {
-            auto b = std::begin(range);
-            auto e = std::end(range);
-            if constexpr (is_detected_v<random_access_iterator, decltype(b)>)
-                return make_range(b, advance(b, count, e));
-            else
-                return make_range(take_iterator{ b, count }, take_iterator{ e });
+            return create(std::begin(range), std::end(range), count);
         }
         else if constexpr (Dir == direction::right)
         {
             return _last(make_range(range), take_fn<direction::left>{}, count);
+        }
+    }
+
+    template<class Iter>
+    constexpr auto create(Iter b, Iter e, std::ptrdiff_t count) const
+    {
+        if constexpr (is_detected_v<random_access_iterator, Iter>)
+            return make_range(b, advance(b, count, e));
+        else
+        {
+            return generate_fn{}([=]() mutable -> std::optional<wrapped<iter_reference_t<Iter>>> {
+                if (count-- > 0 && b != e)
+                    return *b++;
+                else
+                    return std::nullopt;
+            });
         }
     }
 };
@@ -111,9 +121,7 @@ struct drop_fn
     {
         if constexpr (Dir == direction::left)
         {
-            auto b = std::begin(range);
-            auto e = std::end(range);
-            return make_range(advance(b, count, e), e);
+            return create(std::begin(range), std::end(range), count);
         }
         else if constexpr (Dir == direction::right)
         {
@@ -123,6 +131,12 @@ struct drop_fn
         {
             return _both(make_range(range), drop_fn<direction::left>{}, count);
         }
+    }
+
+    template<class Iter>
+    constexpr auto create(Iter b, Iter e, std::ptrdiff_t count) const
+    {
+        return make_range(advance(b, count, e), e);
     }
 };
 

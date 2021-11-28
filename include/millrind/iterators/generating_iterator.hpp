@@ -9,8 +9,7 @@ template<class Func>
 class generating_iterator : public iterator_facade<generating_iterator<Func>>
 {
 private:
-    using result_type = std::invoke_result_t<Func>;
-    using optional_type = decltype(detail::to_optional(std::declval<result_type>()));
+    using optional_type = std::invoke_result_t<Func>;
 
 public:
     generating_iterator()
@@ -31,7 +30,7 @@ public:
 
     decltype(auto) deref() const
     {
-        return unwrap(*std::move(_current));
+        return unwrap(*_current);
     }
 
     void inc()
