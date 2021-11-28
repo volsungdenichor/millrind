@@ -16,6 +16,7 @@
 #include "iterators/owning_iterator.hpp"
 #include "iterators/repeat_iterator.hpp"
 #include "iterators/stride_iterator.hpp"
+#include "iterators/take_iterator.hpp"
 #include "iterators/zip_transform_iterator.hpp"
 
 namespace millrind
@@ -70,6 +71,16 @@ enum class direction
     both
 };
 
+struct generate_fn
+{
+    template<class Func>
+    auto operator()(Func func) const
+    {
+        using result_type = generating_iterator<Func>;
+        return make_range(result_type{ func }, result_type{});
+    }
+};
+
 template<direction Dir>
 struct take_fn
 {
@@ -80,7 +91,10 @@ struct take_fn
         {
             auto b = std::begin(range);
             auto e = std::end(range);
-            return make_range(b, advance(b, count, e));
+            if constexpr (is_detected_v<random_access_iterator, decltype(b)>)
+                return make_range(b, advance(b, count, e));
+            else
+                return make_range(take_iterator{ b, count }, take_iterator{ e });
         }
         else if constexpr (Dir == direction::right)
         {
@@ -409,16 +423,6 @@ struct repeat_fn
     {
         using result_type = repeat_iterator<T>;
         return make_range(result_type{ value, 0 }, result_type{ value, count });
-    }
-};
-
-struct generate_fn
-{
-    template<class Func>
-    auto operator()(Func func) const
-    {
-        using result_type = generating_iterator<Func>;
-        return make_range(result_type{ func }, result_type{});
     }
 };
 
