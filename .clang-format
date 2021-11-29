@@ -8,6 +8,7 @@ AllowShortFunctionsOnASingleLine: 'None'
 AllowShortIfStatementsOnASingleLine: 'Never'
 AllowShortLoopsOnASingleLine: 'false'
 BreakBeforeBraces: Allman
+BreakConstructorInitializers: BeforeComma
 BinPackArguments: 'false'
 BinPackParameters: 'false'
 Cpp11BracedListStyle: 'false'

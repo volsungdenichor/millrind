@@ -13,8 +13,8 @@ public:
     owning_iterator() = default;
 
     owning_iterator(Iter iter, std::shared_ptr<Container> container)
-        : _iter{ iter },
-          _container{ std::move(container) }
+        : _iter{ iter }
+        , _container{ std::move(container) }
     {
     }
 

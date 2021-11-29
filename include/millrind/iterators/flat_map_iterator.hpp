@@ -12,11 +12,11 @@ public:
     flat_map_iterator() = default;
 
     flat_map_iterator(Func func, Outer outer, Outer outer_end)
-        : _func{ std::move(func) },
-          _outer{ std::move(outer) },
-          _outer_end{ std::move(outer_end) },
-          _inner{},
-          _inner_end{}
+        : _func{ std::move(func) }
+        , _outer{ std::move(outer) }
+        , _outer_end{ std::move(outer_end) }
+        , _inner{}
+        , _inner_end{}
     {
         if (_outer != _outer_end)
         {

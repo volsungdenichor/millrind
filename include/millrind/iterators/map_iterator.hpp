@@ -12,8 +12,8 @@ public:
     map_iterator() = default;
 
     map_iterator(Func func, Iter iter)
-        : _func{ std::move(func) },
-          _iter{ std::move(iter) }
+        : _func{ std::move(func) }
+        , _iter{ std::move(iter) }
     {
     }
 

@@ -7,6 +7,173 @@
 
 namespace millrind
 {
+template<class T>
+class optional;
+
+template<class T>
+class optional
+{
+public:
+    constexpr optional()
+        : _value{}
+    {
+    }
+
+    constexpr optional(std::nullopt_t)
+        : _value{}
+    {
+    }
+
+    constexpr optional(T value)
+        : _value{ std::move(value) }
+    {
+    }
+
+    constexpr optional(const optional&) = default;
+
+    constexpr optional(optional&&) = default;
+
+    constexpr optional& operator=(optional other)
+    {
+        std::swap(_value, other._value);
+        return *this;
+    }
+
+    constexpr explicit operator bool() const
+    {
+        return !!_value;
+    }
+
+    constexpr const T& operator*() const&
+    {
+        check_value();
+        return *_value;
+    }
+
+    constexpr T& operator*() &
+    {
+        check_value();
+        return *_value;
+    }
+
+    constexpr T&& operator*() &&
+    {
+        check_value();
+        return *std::move(_value);
+    }
+
+    constexpr const T* operator->() const&
+    {
+        check_value();
+        return &*_value;
+    }
+
+    constexpr T* operator->() &
+    {
+        check_value();
+        return &*_value;
+    }
+
+private:
+    void check_value() const
+    {
+        if (!_value)
+            throw std::bad_optional_access{};
+    }
+    std::optional<T> _value;
+};
+
+template<class T>
+class optional<T&>
+{
+public:
+    constexpr optional()
+        : _value{}
+    {
+    }
+
+    constexpr optional(std::nullopt_t)
+        : _value{}
+    {
+    }
+
+    constexpr optional(T& value)
+        : _value{ &value }
+    {
+    }
+
+    constexpr optional(const optional&) = default;
+
+    constexpr optional(optional&&) = default;
+
+    constexpr optional& operator=(optional other)
+    {
+        std::swap(_value, other._value);
+        return *this;
+    }
+
+    constexpr explicit operator bool() const
+    {
+        return !!_value;
+    }
+
+    constexpr T& operator*() const&
+    {
+        check_value();
+        return *_value;
+    }
+
+    constexpr T& operator*() &
+    {
+        check_value();
+        return *_value;
+    }
+
+    constexpr T* operator->() const&
+    {
+        check_value();
+        return &*_value;
+    }
+
+    constexpr T* operator->() &
+    {
+        check_value();
+        return &*_value;
+    }
+
+private:
+    void check_value() const
+    {
+        if (!_value)
+            throw std::bad_optional_access{};
+    }
+    T* _value;
+};
+
+template<class T, class U>
+constexpr bool operator==(const optional<T>& lhs, const optional<U>& rhs)
+{
+    return (!lhs && !rhs) || (lhs && rhs && *lhs == *rhs);
+}
+
+template<class T, class U>
+constexpr bool operator!=(const optional<T>& lhs, const optional<U>& rhs)
+{
+    return !(lhs == rhs);
+}
+
+template<class T, class U, class = decltype(std::declval<T>() == std::declval<U>())>
+constexpr bool operator==(const optional<T>& lhs, const U& rhs)
+{
+    return lhs && *lhs == rhs;
+}
+
+template<class T, class U, class = decltype(std::declval<T>() == std::declval<U>())>
+constexpr bool operator!=(const optional<T>& lhs, const U& rhs)
+{
+    return !(lhs == rhs);
+}
+
 namespace detail
 {
 template<class T, class = std::void_t<>>

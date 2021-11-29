@@ -49,8 +49,8 @@ public:
     using iterator_category = typename traits::iterator_category;
 
     constexpr iterator_range(iterator begin, iterator end)
-        : begin_{ begin },
-          end_{ end }
+        : begin_{ begin }
+        , end_{ end }
     {
     }
 
@@ -60,8 +60,8 @@ public:
     }
 
     constexpr iterator_range()
-        : begin_{},
-          end_{}
+        : begin_{}
+        , end_{}
     {
     }
 

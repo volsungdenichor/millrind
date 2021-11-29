@@ -164,6 +164,7 @@ struct identity
 
 using detail::call;
 using detail::pipeable;
+using detail::pipeable_adaptor;
 
 static constexpr inline auto pipe = detail::pipe_fn{};
 static constexpr inline auto fn = pipe;

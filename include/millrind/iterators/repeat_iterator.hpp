@@ -12,8 +12,8 @@ public:
     repeat_iterator() = default;
 
     repeat_iterator(T value, std::ptrdiff_t index)
-        : _value{ std::move(value) },
-          _index{ index }
+        : _value{ std::move(value) }
+        , _index{ index }
     {
     }
 

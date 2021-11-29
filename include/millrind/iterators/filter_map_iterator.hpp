@@ -16,10 +16,10 @@ public:
     filter_map_iterator() = default;
 
     filter_map_iterator(Func func, Iter iter, Iter end)
-        : _func{ std::move(func) },
-          _iter{ std::move(iter) },
-          _end{ std::move(end) },
-          _current{}
+        : _func{ std::move(func) }
+        , _iter{ std::move(iter) }
+        , _end{ std::move(end) }
+        , _current{}
     {
         update();
     }

@@ -12,9 +12,9 @@ public:
     stride_iterator() = default;
 
     stride_iterator(Iter iter, std::ptrdiff_t step, Iter last)
-        : _iter{ iter },
-          _step{ step },
-          _last{ last }
+        : _iter{ iter }
+        , _step{ step }
+        , _last{ last }
     {
     }
 

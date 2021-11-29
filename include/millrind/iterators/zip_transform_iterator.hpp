@@ -15,8 +15,8 @@ public:
     zip_transform_iterator() = default;
 
     zip_transform_iterator(Func func, Iters... iters)
-        : _func{ std::move(func) },
-          _iters{ std::move(iters)... }
+        : _func{ std::move(func) }
+        , _iters{ std::move(iters)... }
     {
     }
 

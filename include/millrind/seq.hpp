@@ -148,13 +148,27 @@ struct take_while_fn
     {
         if constexpr (Dir == direction::left)
         {
-            auto b = std::begin(range);
-            auto e = std::end(range);
-            return make_range(b, advance_while<Expected>(b, fn(ref{ proj }, ref{ pred }), e));
+            return create(std::begin(range), std::end(range), fn(ref(proj), ref(pred)));
         }
         else if constexpr (Dir == direction::right)
         {
             return _last(make_range(range), take_while_fn<direction::left, Expected>{}, pred, proj);
+        }
+    }
+
+    template<class Iter, class Pred>
+    constexpr auto create(Iter b, Iter e, Pred&& pred) const
+    {
+        if constexpr (is_detected_v<random_access_iterator, Iter>)
+            return make_range(b, advance_while<Expected>(b, std::forward<Pred>(pred), e));
+        else
+        {
+            return generate_fn{}([=]() mutable -> std::optional<wrapped<iter_reference_t<Iter>>> {
+                if (b != e && call(pred, *b) == Expected)
+                    return *b++;
+                else
+                    return std::nullopt;
+            });
         }
     }
 };
@@ -169,7 +183,7 @@ struct drop_while_fn
         {
             auto b = std::begin(range);
             auto e = std::end(range);
-            return make_range(advance_while<Expected>(b, fn(ref{ proj }, ref{ pred }), e), e);
+            return make_range(advance_while<Expected>(b, fn(ref(proj), ref(pred)), e), e);
         }
         else if constexpr (Dir == direction::right)
         {
@@ -454,7 +468,7 @@ struct for_each_fn
     template<class Range, class Func, class Proj = identity>
     auto operator()(Range&& range, Func func, Proj proj = {}) const
     {
-        return for_each(make_range(range), ref{ func }, ref{ proj });
+        return for_each(make_range(range), ref(func), ref(proj));
     }
 };
 

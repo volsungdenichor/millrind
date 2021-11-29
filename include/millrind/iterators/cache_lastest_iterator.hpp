@@ -13,8 +13,8 @@ public:
     cache_latest_iterator() = default;
 
     cache_latest_iterator(Iter iter)
-        : _iter{ std::move(iter) },
-          _cache{}
+        : _iter{ std::move(iter) }
+        , _cache{}
     {
     }
 

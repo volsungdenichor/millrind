@@ -11,10 +11,10 @@ public:
     chain_iterator() = default;
 
     chain_iterator(Iter1 iter1, Iter2 iter2, Iter1 end, Iter2 begin)
-        : _iter1{ iter1 },
-          _iter2{ iter2 },
-          _range1_end{ end },
-          _range2_begin{ begin }
+        : _iter1{ iter1 }
+        , _iter2{ iter2 }
+        , _range1_end{ end }
+        , _range2_begin{ begin }
     {
     }
 

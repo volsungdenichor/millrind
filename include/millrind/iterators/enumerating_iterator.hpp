@@ -11,14 +11,14 @@ public:
     enumerating_iterator() = default;
 
     enumerating_iterator(Iter iter, std::ptrdiff_t index)
-        : _iter{ std::move(iter) },
-          _index{ index }
+        : _iter{ std::move(iter) }
+        , _index{ index }
     {
     }
 
     enumerating_iterator(Iter iter)
-        : _iter{ std::move(iter) },
-          _index{}
+        : _iter{ std::move(iter) }
+        , _index{}
     {
     }
 

@@ -13,16 +13,16 @@ private:
 
 public:
     generating_iterator()
-        : _func{},
-          _current{},
-          _index{ std::numeric_limits<std::ptrdiff_t>::max() }
+        : _func{}
+        , _current{}
+        , _index{ std::numeric_limits<std::ptrdiff_t>::max() }
     {
     }
 
     generating_iterator(Func func)
-        : _func{ std::move(func) },
-          _current{ std::invoke(_func) },
-          _index{ 0 }
+        : _func{ std::move(func) }
+        , _current{ std::invoke(_func) }
+        , _index{ 0 }
     {
     }
 

@@ -26,8 +26,8 @@ struct ostream_iterator : std::iterator<std::output_iterator_tag, void, void, vo
     std::string_view separator;
 
     ostream_iterator(std::ostream& os, std::string_view separator = {})
-        : os{ &os },
-          separator{ separator }
+        : os{ &os }
+        , separator{ separator }
     {
     }
 

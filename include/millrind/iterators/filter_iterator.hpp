@@ -12,9 +12,9 @@ public:
     filter_iterator() = default;
 
     filter_iterator(Pred pred, Iter iter, Iter end)
-        : _pred{ std::move(pred) },
-          _iter{ std::move(iter) },
-          _end{ std::move(end) }
+        : _pred{ std::move(pred) }
+        , _iter{ std::move(iter) }
+        , _end{ std::move(end) }
     {
         update();
     }

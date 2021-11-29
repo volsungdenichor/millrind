@@ -17,6 +17,96 @@
 #include <random>
 #include <sstream>
 
+template<class Range, class Func>
+struct map_view
+{
+    struct data_t
+    {
+        Range range;
+        Func func;
+
+        data_t(Range range, Func func)
+            : range{ std::move(range) }
+            , func{ std::move(func) }
+        {
+        }
+    };
+
+    std::shared_ptr<data_t> _data;
+
+    map_view(Range range, Func func)
+        : _data{ std::make_shared<data_t>(std::move(range), std::move(func)) }
+    {
+    }
+
+    using inner_iter = millrind::iterator_t<Range>;
+
+    struct iterator
+    {
+        std::shared_ptr<data_t> _data;
+        inner_iter _iter;
+
+        iterator() = default;
+
+        iterator(std::shared_ptr<data_t> data, inner_iter iter)
+            : _data{ std::move(data) }
+            , _iter{ iter }
+        {
+        }
+
+        iterator(const iterator&) = default;
+
+        iterator& operator=(const iterator&) = default;
+
+        iterator& operator++()
+        {
+            ++_iter;
+            return *this;
+        }
+
+        iterator& operator--()
+        {
+            --_iter;
+            return *this;
+        }
+
+        bool operator==(const iterator& other) const
+        {
+            return _iter == other._iter;
+        }
+
+        bool operator!=(const iterator& other) const
+        {
+            return _iter != other._iter;
+        }
+
+        decltype(auto) operator*() const
+        {
+            return std::invoke(_data->func, *_iter);
+        }
+    };
+
+    constexpr auto begin() const
+    {
+        return iterator{ _data, std::begin(_data->range) };
+    }
+
+    constexpr auto end() const
+    {
+        return iterator{ _data, std::end(_data->range) };
+    }
+};
+
+template<class Func>
+auto views_map(Func func)
+{
+    return millrind::pipeable_adaptor{
+        [=](auto&& item) {
+            return map_view{ std::move(item), func };
+        }
+    };
+}
+
 template<class T>
 constexpr auto yield_if(bool condition, T value)
 {
@@ -43,15 +133,8 @@ void run()
 {
     using namespace millrind;
 
-    pythagorean_triples()
-        | seq::take(10)
-        | seq::enumerate()
-        | seq::drop(3)
-        | seq::for_each(
-            [](auto&& index, auto&& triple) {
-                const auto [x, y, z] = std::move(triple);
-                println("[", index, "] ", x, " ", y, " ", z);
-            });
+    for (auto&& x : std::vector<int>{ 1, 2, 3, 4 } | views_map(L(_ * 10)))
+        println(x);
 }
 
 int main()
