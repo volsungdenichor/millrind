@@ -46,7 +46,7 @@ struct ostream_iterator : std::iterator<std::output_iterator_tag, void, void, vo
         return *this;
     }
 
-    template<class T>
+    template <class T>
     ostream_iterator& operator=(const T& item)
     {
         *os << item << separator;
@@ -58,14 +58,14 @@ namespace detail
 {
 struct delimit_fn
 {
-    template<class Range, class Proj = identity>
+    template <class Range, class Proj = identity>
     auto operator()(Range&& range, std::string_view separator = {}, Proj proj = {}) const -> ostream_manipulator
     {
         return impl(std::begin(range), std::end(range), separator, proj);
     }
 
 private:
-    template<class Iter, class Proj = identity>
+    template <class Iter, class Proj = identity>
     auto impl(Iter begin, Iter end, std::string_view separator = {}, Proj proj = {}) const -> ostream_manipulator
     {
         return { [=](std::ostream& os) {
@@ -81,7 +81,7 @@ private:
 
 struct write_fn
 {
-    template<class... Args>
+    template <class... Args>
     std::ostream& operator()(std::ostream& os, Args&&... args) const
     {
         (os << ... << std::forward<Args>(args));
@@ -91,7 +91,7 @@ struct write_fn
 
 struct str_fn
 {
-    template<class... Args>
+    template <class... Args>
     std::string operator()(Args&&... args) const
     {
         std::stringstream ss;
@@ -104,7 +104,7 @@ struct print_fn
 {
     std::string_view delimiter = {};
 
-    template<class... Args>
+    template <class... Args>
     std::ostream& operator()(Args&&... args) const
     {
         return write_fn{}(std::cout, std::forward<Args>(args)...) << delimiter;

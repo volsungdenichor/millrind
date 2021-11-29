@@ -5,7 +5,7 @@
 
 namespace millrind
 {
-template<class Func, class... Iters>
+template <class Func, class... Iters>
 class zip_transform_iterator : public iterator_facade<zip_transform_iterator<Func, Iters...>>
 {
 private:
@@ -43,25 +43,25 @@ public:
     }
 
 private:
-    template<size_t... I>
+    template <size_t... I>
     decltype(auto) deref(std::index_sequence<I...>) const
     {
         return call(_func, *std::get<I>(_iters)...);
     }
 
-    template<size_t... I>
+    template <size_t... I>
     void inc(std::index_sequence<I...>)
     {
         ignore(++std::get<I>(_iters)...);
     }
 
-    template<size_t... I>
+    template <size_t... I>
     void dec(std::index_sequence<I...>)
     {
         ignore(--std::get<I>(_iters)...);
     }
 
-    template<class... T>
+    template <class... T>
     void ignore(T&&...)
     {
     }

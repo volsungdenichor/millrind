@@ -4,7 +4,7 @@
 
 namespace millrind
 {
-template<class Iter1, class Iter2>
+template <class Iter1, class Iter2>
 class chain_iterator : public iterator_facade<chain_iterator<Iter1, Iter2>>
 {
 public:
@@ -35,7 +35,7 @@ public:
             ++_iter2;
     }
 
-    template<class It1 = Iter1, class It2 = Iter2, class = bidirectional_iterator<It1>, class = bidirectional_iterator<It2>>
+    template <class It1 = Iter1, class It2 = Iter2, class = bidirectional_iterator<It1>, class = bidirectional_iterator<It2>>
     void dec()
     {
         if (_iter2 != _range2_begin)

@@ -4,7 +4,7 @@
 
 namespace millrind
 {
-template<class T>
+template <class T>
 class numeric_iterator : public iterator_facade<numeric_iterator<T>>
 {
 public:

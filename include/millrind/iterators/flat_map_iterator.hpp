@@ -5,7 +5,7 @@
 
 namespace millrind
 {
-template<class Func, class Outer, class Inner = iterator_t<std::invoke_result_t<Func, iter_reference_t<Outer>>>>
+template <class Func, class Outer, class Inner = iterator_t<std::invoke_result_t<Func, iter_reference_t<Outer>>>>
 class flat_map_iterator : public iterator_facade<flat_map_iterator<Func, Outer, Inner>>
 {
 public:

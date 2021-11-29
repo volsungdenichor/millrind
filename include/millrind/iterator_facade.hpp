@@ -8,7 +8,7 @@ namespace millrind
 {
 namespace detail
 {
-template<class T>
+template <class T>
 struct pointer_proxy
 {
     T item;
@@ -21,49 +21,49 @@ struct pointer_proxy
 
 }  // namespace detail
 
-template<class T>
+template <class T>
 using has_deref = decltype(std::declval<T>().deref());
 
-template<class T>
+template <class T>
 using has_inc = decltype(std::declval<T>().inc());
 
-template<class T>
+template <class T>
 using has_dec = decltype(std::declval<T>().dec());
 
-template<class T>
+template <class T>
 using has_advance = decltype(std::declval<T>().advance(std::declval<convertible_to<std::is_integral>>()));
 
-template<class T>
+template <class T>
 using has_is_equal = decltype(std::declval<T>().is_equal(std::declval<T>()));
 
-template<class T>
+template <class T>
 using has_is_less = decltype(std::declval<T>().is_less(std::declval<T>()));
 
-template<class T>
+template <class T>
 using has_distance_to = decltype(std::declval<T>().distance_to(std::declval<T>()));
 
-template<class T>
+template <class T>
 static constexpr bool has_deref_v = is_detected_v<has_deref, T>;
 
-template<class T>
+template <class T>
 static constexpr bool has_inc_v = is_detected_v<has_inc, T>;
 
-template<class T>
+template <class T>
 static constexpr bool has_dec_v = is_detected_v<has_dec, T>;
 
-template<class T>
+template <class T>
 static constexpr bool has_advance_v = is_detected_v<has_advance, T>;
 
-template<class T>
+template <class T>
 static constexpr bool has_is_equal_v = is_detected_v<has_is_equal, T>;
 
-template<class T>
+template <class T>
 static constexpr bool has_is_less_v = is_detected_v<has_is_less, T>;
 
-template<class T>
+template <class T>
 static constexpr bool has_distance_to_v = is_detected_v<has_distance_to, T>;
 
-template<class Self>
+template <class Self>
 class iterator_facade
 {
 protected:
@@ -136,7 +136,7 @@ public:
         return temp;
     }
 
-    template<class D>
+    template <class D>
     friend self_type& operator+=(self_type& it, D offset)
     {
         static_assert(has_advance_v<self_type>, "iterator_facade: advance() methods required");
@@ -145,26 +145,26 @@ public:
         return it;
     }
 
-    template<class D>
+    template <class D>
     friend self_type operator+(self_type it, D offset)
     {
         return it += offset;
     }
 
-    template<class D>
+    template <class D>
     friend self_type& operator-=(self_type& it, D offset)
     {
         it += -offset;
         return it;
     }
 
-    template<class D>
+    template <class D>
     friend self_type operator-(self_type it, D offset)
     {
         return it -= offset;
     }
 
-    template<class D>
+    template <class D>
     decltype(auto) operator[](D offset) const
     {
         return *(self() + offset);
@@ -241,33 +241,33 @@ protected:
 
 namespace detail
 {
-template<class Iter, class = std::void_t<>>
+template <class Iter, class = std::void_t<>>
 struct difference_type_impl
 {
     using type = std::ptrdiff_t;
 };
 
-template<class Iter>
+template <class Iter>
 struct difference_type_impl<Iter, std::void_t<has_distance_to<Iter>>>
 {
     using type = decltype(std::declval<Iter>().distance_to(std::declval<Iter>()));
 };
 
-template<class Iter, class = std::void_t<>>
+template <class Iter, class = std::void_t<>>
 struct iterator_category_impl
 {
     using type = std::forward_iterator_tag;
 };
 
-template<class Iter>
+template <class Iter>
 constexpr bool is_random_access = has_advance_v<Iter> && (has_distance_to_v<Iter> || has_is_less_v<Iter>);
 
-template<class Iter>
+template <class Iter>
 constexpr bool is_bidirectional = (has_inc_v<Iter> && has_dec_v<Iter>) || has_advance_v<Iter>;
 
 }  // namespace detail
 
-template<class Iter>
+template <class Iter>
 struct iterator_traits
 {
     using it = Iter;
@@ -286,7 +286,7 @@ struct iterator_traits
 #define MILLRIND_ITERATOR_TRAITS(iter)                                                 \
     namespace std                                                                      \
     {                                                                                  \
-    template<class... Args>                                                            \
+    template <class... Args>                                                           \
     struct iterator_traits<iter<Args...>> : ::millrind::iterator_traits<iter<Args...>> \
     {                                                                                  \
     };                                                                                 \

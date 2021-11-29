@@ -7,7 +7,7 @@
 
 namespace millrind
 {
-template<class T>
+template <class T>
 class any_iterator : public iterator_facade<any_iterator<T>>
 {
 public:
@@ -20,7 +20,7 @@ public:
         virtual bool is_equal(const impl_base& other) const = 0;
     };
 
-    template<class Iter>
+    template <class Iter>
     struct implementation : impl_base
     {
         implementation(Iter iter)
@@ -53,7 +53,7 @@ public:
 
     any_iterator() = default;
 
-    template<class Iter>
+    template <class Iter>
     any_iterator(Iter iter)
         : _impl{ std::make_unique<implementation<Iter>>(iter) }
     {

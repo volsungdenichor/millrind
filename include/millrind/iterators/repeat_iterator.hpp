@@ -5,7 +5,7 @@
 
 namespace millrind
 {
-template<class T>
+template <class T>
 class repeat_iterator : public iterator_facade<repeat_iterator<T>>
 {
 public:

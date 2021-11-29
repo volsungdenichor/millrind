@@ -7,7 +7,7 @@ namespace millrind
 {
 struct return_found
 {
-    template<class Iter>
+    template <class Iter>
     constexpr auto operator()(Iter found, Iter, Iter) const -> Iter
     {
         return found;
@@ -16,7 +16,7 @@ struct return_found
 
 struct return_found_end
 {
-    template<class Iter>
+    template <class Iter>
     constexpr auto operator()(Iter found, Iter begin, Iter end) const -> iterator_range<Iter>
     {
         return make_range(found, end);
@@ -25,7 +25,7 @@ struct return_found_end
 
 struct return_begin_found
 {
-    template<class Iter>
+    template <class Iter>
     constexpr auto operator()(Iter found, Iter begin, Iter end) const -> iterator_range<Iter>
     {
         return make_range(begin, found);
@@ -34,7 +34,7 @@ struct return_begin_found
 
 struct return_found_next
 {
-    template<class Iter>
+    template <class Iter>
     constexpr auto operator()(Iter found, Iter begin, Iter end) const -> iterator_range<Iter>
     {
         return found != end ? make_range(found, std::next(found)) : make_range(found, found);
@@ -43,7 +43,7 @@ struct return_found_next
 
 struct return_begin_next
 {
-    template<class Iter>
+    template <class Iter>
     constexpr auto operator()(Iter found, Iter begin, Iter end) const -> iterator_range<Iter>
     {
         return found != end ? make_range(begin, std::next(found)) : make_range(found, found);
@@ -52,7 +52,7 @@ struct return_begin_next
 
 struct return_next_end
 {
-    template<class Iter>
+    template <class Iter>
     constexpr auto operator()(Iter found, Iter begin, Iter end) const -> iterator_range<Iter>
     {
         return found != end ? make_range(std::next(found), end) : make_range(found, found);
@@ -61,7 +61,7 @@ struct return_next_end
 
 struct return_ref
 {
-    template<class Iter>
+    template <class Iter>
     constexpr auto operator()(Iter found, Iter begin, Iter end) const -> iter_reference_t<Iter>
     {
         if (found == end)
@@ -72,7 +72,7 @@ struct return_ref
 
 struct return_opt_ref
 {
-    template<class Iter>
+    template <class Iter>
     constexpr auto operator()(Iter found, Iter begin, Iter end) const -> std::optional<wrapped<iter_reference_t<Iter>>>
     {
         using result_type = std::optional<wrapped<iter_reference_t<Iter>>>;
@@ -82,7 +82,7 @@ struct return_opt_ref
 
 struct return_opt_found
 {
-    template<class Iter>
+    template <class Iter>
     constexpr auto operator()(Iter found, Iter begin, Iter end) const -> std::optional<Iter>
     {
         using result_type = std::optional<Iter>;
@@ -92,7 +92,7 @@ struct return_opt_found
 
 struct return_both
 {
-    template<class Iter>
+    template <class Iter>
     constexpr auto operator()(Iter found, Iter begin, Iter end) const
         -> std::pair<iterator_range<Iter>, iterator_range<Iter>>
     {

@@ -6,7 +6,7 @@
 
 namespace millrind
 {
-template<class Func, class Iter>
+template <class Func, class Iter>
 class filter_map_iterator : public iterator_facade<filter_map_iterator<Func, Iter>>
 {
 private:

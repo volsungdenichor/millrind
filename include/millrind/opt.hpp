@@ -7,10 +7,10 @@
 
 namespace millrind
 {
-template<class T>
+template <class T>
 class optional;
 
-template<class T>
+template <class T>
 class optional
 {
 public:
@@ -83,7 +83,7 @@ private:
     std::optional<T> _value;
 };
 
-template<class T>
+template <class T>
 class optional<T&>
 {
 public:
@@ -150,25 +150,25 @@ private:
     T* _value;
 };
 
-template<class T, class U>
+template <class T, class U>
 constexpr bool operator==(const optional<T>& lhs, const optional<U>& rhs)
 {
     return (!lhs && !rhs) || (lhs && rhs && *lhs == *rhs);
 }
 
-template<class T, class U>
+template <class T, class U>
 constexpr bool operator!=(const optional<T>& lhs, const optional<U>& rhs)
 {
     return !(lhs == rhs);
 }
 
-template<class T, class U, class = decltype(std::declval<T>() == std::declval<U>())>
+template <class T, class U, class = decltype(std::declval<T>() == std::declval<U>())>
 constexpr bool operator==(const optional<T>& lhs, const U& rhs)
 {
     return lhs && *lhs == rhs;
 }
 
-template<class T, class U, class = decltype(std::declval<T>() == std::declval<U>())>
+template <class T, class U, class = decltype(std::declval<T>() == std::declval<U>())>
 constexpr bool operator!=(const optional<T>& lhs, const U& rhs)
 {
     return !(lhs == rhs);
@@ -176,17 +176,17 @@ constexpr bool operator!=(const optional<T>& lhs, const U& rhs)
 
 namespace detail
 {
-template<class T, class = std::void_t<>>
+template <class T, class = std::void_t<>>
 struct is_optional : std::false_type
 {
 };
 
-template<class T>
+template <class T>
 struct is_optional<T, std::void_t<decltype(static_cast<bool>(std::declval<T>())), decltype(*std::declval<T>())>> : std::true_type
 {
 };
 
-template<class T>
+template <class T>
 constexpr auto to_optional(T&& item)
 {
     return item ? std::optional{ wrap(*std::forward<T>(item)) }
@@ -195,7 +195,7 @@ constexpr auto to_optional(T&& item)
 
 struct some_fn
 {
-    template<class T>
+    template <class T>
     constexpr auto operator()(T value) const -> std::optional<T>
     {
         return { std::move(value) };
@@ -204,7 +204,7 @@ struct some_fn
 
 struct has_value_fn
 {
-    template<class T>
+    template <class T>
     constexpr bool operator()(T&& item) const
     {
         static_assert(is_optional<std::remove_reference_t<T>>{}, "opt::has_value: optional type required");
@@ -214,7 +214,7 @@ struct has_value_fn
 
 struct map_fn
 {
-    template<class T, class Func>
+    template <class T, class Func>
     constexpr auto operator()(T&& item, Func&& func) const
     {
         static_assert(is_optional<std::remove_reference_t<T>>{}, "opt::map: optional type required");
@@ -224,7 +224,7 @@ struct map_fn
 
 struct flat_map_fn
 {
-    template<class T, class Func>
+    template <class T, class Func>
     constexpr auto operator()(T&& item, Func&& func) const
     {
         static_assert(is_optional<std::remove_reference_t<T>>{}, "opt::flat_map: optional type required");
@@ -232,10 +232,10 @@ struct flat_map_fn
     }
 };
 
-template<bool Expected>
+template <bool Expected>
 struct filter_fn
 {
-    template<class T, class Pred>
+    template <class T, class Pred>
     constexpr auto operator()(T&& item, Pred&& pred) const
     {
         static_assert(is_optional<std::remove_reference_t<T>>{}, "opt::filter: optional type required");
@@ -245,7 +245,7 @@ struct filter_fn
 
 struct value_fn
 {
-    template<class T>
+    template <class T>
     constexpr decltype(auto) operator()(T&& item) const
     {
         static_assert(is_optional<std::remove_reference_t<T>>{}, "opt::value: optional type required");
@@ -255,7 +255,7 @@ struct value_fn
     }
 };
 
-template<class T>
+template <class T>
 constexpr decltype(auto) get_or_invoke(T&& item_or_func)
 {
     if constexpr (std::is_invocable_v<T>)
@@ -266,7 +266,7 @@ constexpr decltype(auto) get_or_invoke(T&& item_or_func)
 
 struct value_or_fn
 {
-    template<class T, class U>
+    template <class T, class U>
     constexpr decltype(auto) operator()(T&& item, U&& default_value) const
     {
         static_assert(is_optional<std::remove_reference_t<T>>{}, "opt::value_or: optional type required");
@@ -276,14 +276,14 @@ struct value_or_fn
 
 struct value_or_throw_fn
 {
-    template<class T, class E, class = std::enable_if_t<std::is_base_of_v<std::exception, E>>>
+    template <class T, class E, class = std::enable_if_t<std::is_base_of_v<std::exception, E>>>
     constexpr decltype(auto) operator()(T&& item, const E& exception) const
     {
         static_assert(is_optional<std::remove_reference_t<T>>{}, "opt::value_or_throw: optional type required");
         return item ? unwrap(*std::forward<T>(item)) : throw exception;
     }
 
-    template<class T>
+    template <class T>
     constexpr decltype(auto) operator()(T&& item, const std::string& message) const
     {
         static_assert(is_optional<std::remove_reference_t<T>>{}, "opt::value_or_throw: optional type required");
@@ -293,7 +293,7 @@ struct value_or_throw_fn
 
 struct disjunction_fn
 {
-    template<class T, class U>
+    template <class T, class U>
     constexpr auto operator()(T&& item, U&& other) const
     {
         static_assert(is_optional<std::remove_reference_t<T>>{}, "opt::disjunction: optional type required");
@@ -303,7 +303,7 @@ struct disjunction_fn
 
 struct conjunction_fn
 {
-    template<class T, class U>
+    template <class T, class U>
     constexpr auto operator()(T&& item, U&& other) const
     {
         static_assert(is_optional<std::remove_reference_t<T>>{}, "opt::conjunction: optional type required");

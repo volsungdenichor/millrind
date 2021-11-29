@@ -11,7 +11,7 @@ namespace millrind
 {
 namespace detail
 {
-template<class T>
+template <class T>
 struct try_parse_fn
 {
     [[nodiscard]] bool operator()(std::string_view txt, ref<T> value) const
@@ -31,7 +31,7 @@ struct try_parse_fn
     }
 };
 
-template<class T>
+template <class T>
 struct parse_fn
 {
     T operator()(std::string_view txt) const
@@ -51,10 +51,10 @@ struct parse_fn
 
 }  // namespace detail
 
-template<class T>
+template <class T>
 static constexpr inline auto try_parse = detail::try_parse_fn<T>{};
 
-template<class T>
+template <class T>
 static constexpr inline auto parse = detail::parse_fn<T>{};
 
 }  // namespace millrind

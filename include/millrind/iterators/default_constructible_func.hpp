@@ -7,7 +7,7 @@
 
 namespace millrind
 {
-template<class Func>
+template <class Func>
 struct default_constructible_func
 {
     static constexpr bool is_default_constructible = std::is_default_constructible_v<Func>;
@@ -32,7 +32,7 @@ struct default_constructible_func
         return *this;
     }
 
-    template<class... Args>
+    template <class... Args>
     decltype(auto) operator()(Args&&... args) const
     {
         if constexpr (is_default_constructible)

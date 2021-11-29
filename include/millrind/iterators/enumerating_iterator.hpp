@@ -4,7 +4,7 @@
 
 namespace millrind
 {
-template<class Iter>
+template <class Iter>
 class enumerating_iterator : public iterator_facade<enumerating_iterator<Iter>>
 {
 public:
@@ -35,7 +35,7 @@ public:
         ++*_index;
     }
 
-    template<class It = Iter, class = bidirectional_iterator<It>>
+    template <class It = Iter, class = bidirectional_iterator<It>>
     void dec()
     {
         --_iter;
@@ -47,20 +47,20 @@ public:
         return _iter == other._iter;
     }
 
-    template<class It = Iter, class = random_access_iterator<It>>
+    template <class It = Iter, class = random_access_iterator<It>>
     bool is_less(const enumerating_iterator& other) const
     {
         return _iter < other._iter;
     }
 
-    template<class It = Iter, class = random_access_iterator<It>>
+    template <class It = Iter, class = random_access_iterator<It>>
     void advance(std::ptrdiff_t offset)
     {
         _iter += offset;
         *_index += offset;
     }
 
-    template<class It = Iter, class = random_access_iterator<It>>
+    template <class It = Iter, class = random_access_iterator<It>>
     auto distance_to(const enumerating_iterator& other) const
     {
         return other._iter - _iter;

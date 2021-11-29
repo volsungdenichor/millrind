@@ -6,7 +6,7 @@
 
 namespace millrind
 {
-template<class Iter, class Diff>
+template <class Iter, class Diff>
 constexpr Iter advance(Iter it, Diff count, Iter end)
 {
     if constexpr (is_detected_v<random_access_iterator, Iter>)
@@ -24,7 +24,7 @@ constexpr Iter advance(Iter it, Diff count, Iter end)
     }
 }
 
-template<bool Expected = true, class Iter, class Pred>
+template <bool Expected = true, class Iter, class Pred>
 constexpr Iter advance_while(Iter it, Pred pred, Iter end)
 {
     while (it != end && (std::invoke(pred, *it) == Expected))
@@ -34,7 +34,7 @@ constexpr Iter advance_while(Iter it, Pred pred, Iter end)
     return it;
 }
 
-template<class Iter>
+template <class Iter>
 class iterator_range
 {
 private:
@@ -76,7 +76,7 @@ public:
         return *this;
     }
 
-    template<class Container, class = std::enable_if_t<std::is_constructible_v<Container, iterator, iterator>>>
+    template <class Container, class = std::enable_if_t<std::is_constructible_v<Container, iterator, iterator>>>
     operator Container() const
     {
         return { begin(), end() };
@@ -102,7 +102,7 @@ public:
         return std::distance(begin(), end());
     }
 
-    template<size_t Index>
+    template <size_t Index>
     constexpr iterator get() const
     {
         if constexpr (Index == 0)
@@ -116,7 +116,7 @@ public:
         return *begin();
     }
 
-    template<class It = iterator, class = bidirectional_iterator<It>>
+    template <class It = iterator, class = bidirectional_iterator<It>>
     constexpr reference back() const
     {
         return *std::prev(end());
@@ -132,7 +132,7 @@ public:
         return front();
     }
 
-    template<class It = iterator, class = random_access_iterator<It>>
+    template <class It = iterator, class = random_access_iterator<It>>
     constexpr reference operator[](difference_type offset) const
     {
         return *std::next(begin(), offset);
@@ -147,19 +147,19 @@ namespace detail
 {
 struct make_range_fn
 {
-    template<class Iter>
+    template <class Iter>
     constexpr auto operator()(Iter begin, Iter end) const -> iterator_range<Iter>
     {
         return { std::move(begin), std::move(end) };
     }
 
-    template<class Iter>
+    template <class Iter>
     constexpr auto operator()(std::pair<Iter, Iter> p) const -> iterator_range<Iter>
     {
         return (*this)(std::get<0>(p), std::get<1>(p));
     }
 
-    template<class Range>
+    template <class Range>
     constexpr auto operator()(Range&& range) const
     {
         return (*this)(std::begin(range), std::end(range));
@@ -173,12 +173,12 @@ static constexpr inline auto make_range = detail::make_range_fn{};
 
 namespace std
 {
-template<class Iter>
+template <class Iter>
 struct tuple_size<::millrind::iterator_range<Iter>> : std::integral_constant<size_t, 2>
 {
 };
 
-template<size_t Index, class Iter>
+template <size_t Index, class Iter>
 struct tuple_element<Index, ::millrind::iterator_range<Iter>>
 {
     using type = Iter;

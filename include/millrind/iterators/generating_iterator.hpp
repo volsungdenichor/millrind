@@ -5,7 +5,7 @@
 
 namespace millrind
 {
-template<class Func>
+template <class Func>
 class generating_iterator : public iterator_facade<generating_iterator<Func>>
 {
 private:

@@ -5,7 +5,7 @@
 
 namespace millrind
 {
-template<class Pred, class Iter>
+template <class Pred, class Iter>
 class filter_iterator : public iterator_facade<filter_iterator<Pred, Iter>>
 {
 public:
@@ -32,7 +32,7 @@ public:
         update();
     }
 
-    template<class It = Iter, class = bidirectional_iterator<It>>
+    template <class It = Iter, class = bidirectional_iterator<It>>
     void dec()
     {
         --_iter;
@@ -48,7 +48,7 @@ public:
         return _iter == other._iter;
     }
 
-    template<class It = Iter, class = random_access_iterator<It>>
+    template <class It = Iter, class = random_access_iterator<It>>
     bool is_less(const filter_iterator& other) const
     {
         return _iter < other._iter;

@@ -5,7 +5,7 @@
 
 namespace millrind
 {
-template<class T>
+template <class T>
 class ref
 {
 public:
@@ -14,7 +14,7 @@ public:
     {
     }
 
-    template<class U, class = std::enable_if_t<std::is_constructible_v<T*, U*>>>
+    template <class U, class = std::enable_if_t<std::is_constructible_v<T*, U*>>>
     constexpr ref(const ref<U>& other) noexcept
         : ref{ other.get() }
     {
@@ -40,7 +40,7 @@ public:
         return get();
     }
 
-    template<class... Args, class = std::enable_if_t<std::is_invocable_v<T, Args...>>>
+    template <class... Args, class = std::enable_if_t<std::is_invocable_v<T, Args...>>>
     constexpr decltype(auto) operator()(Args&&... args) const
     {
         return std::invoke(get(), std::forward<Args>(args)...);
@@ -55,25 +55,25 @@ private:
     T* _ptr;
 };
 
-template<class T>
+template <class T>
 using cref = ref<const T>;
 
 #define MILLRIND_DEFINE_OP(op)                                       \
-    template<class L, class R>                                       \
+    template <class L, class R>                                      \
     constexpr bool operator op(const ref<L>& lhs, const ref<R>& rhs) \
     {                                                                \
         return lhs.get() op rhs.get();                               \
     }
 
 #define MILLRIND_DEFINE_LHS_OP(op)                              \
-    template<class L, class R>                                  \
+    template <class L, class R>                                 \
     constexpr bool operator op(const ref<L>& lhs, const R& rhs) \
     {                                                           \
         return lhs.get() op rhs;                                \
     }
 
 #define MILLRIND_DEFINE_RHS_OP(op)                              \
-    template<class L, class R>                                  \
+    template <class L, class R>                                 \
     constexpr bool operator op(const L& lhs, const ref<R>& rhs) \
     {                                                           \
         return lhs op rhs.get();                                \
@@ -98,25 +98,25 @@ MILLRIND_DEFINE_OPERATORS(>=)
 
 struct wrap_fn
 {
-    template<class T>
+    template <class T>
     constexpr auto operator()(T&& item) const -> T&&
     {
         return std::forward<T>(item);
     }
 
-    template<class T>
+    template <class T>
     constexpr auto operator()(T& item) const -> ref<T>
     {
         return ref<T>{ item };
     }
 
-    template<class T>
+    template <class T>
     constexpr auto operator()(ref<T> item) const -> ref<T>
     {
         return item;
     }
 
-    template<class T>
+    template <class T>
     constexpr auto operator()(std::reference_wrapper<T> item) const -> ref<T>
     {
         return ref<T>{ item };
@@ -125,53 +125,53 @@ struct wrap_fn
 
 struct unwrap_fn
 {
-    template<class T>
+    template <class T>
     constexpr auto operator()(T&& item) const -> T&&
     {
         return std::forward<T>(item);
     }
 
-    template<class T>
+    template <class T>
     constexpr auto operator()(ref<T> item) const -> T&
     {
         return item.get();
     }
 
-    template<class T>
+    template <class T>
     constexpr auto operator()(std::reference_wrapper<T> item) const -> T&
     {
         return item.get();
     }
 };
 
-template<class T>
+template <class T>
 struct wrapped_impl
 {
     using type = T;
 };
 
-template<class T>
+template <class T>
 struct wrapped_impl<T&>
 {
     using type = std::reference_wrapper<T>;
 };
 
-template<class T>
+template <class T>
 struct unwrapped_impl
 {
     using type = T;
 };
 
-template<class T>
+template <class T>
 struct unwrapped_impl<std::reference_wrapper<T>>
 {
     using type = T&;
 };
 
-template<class T>
+template <class T>
 using wrapped = typename wrapped_impl<T>::type;
 
-template<class T>
+template <class T>
 using unwrapped = typename unwrapped_impl<T>::type;
 
 static constexpr inline auto wrap = wrap_fn{};
@@ -181,7 +181,7 @@ static constexpr inline auto unwrap = unwrap_fn{};
 
 namespace std
 {
-template<class T>
+template <class T>
 struct hash<::millrind::ref<T>>
 {
     std::size_t operator()(const ::millrind::ref<T>& item) const noexcept

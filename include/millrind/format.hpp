@@ -43,7 +43,7 @@ inline int parse_int(std::string_view txt)
     return result;
 }
 
-template<class T>
+template <class T>
 void write_arg(std::ostream& os, std::string_view fmt, const T& item)
 {
     apply_format_spec(os, fmt);
@@ -55,7 +55,7 @@ inline void write_args(std::ostream& os, int index, std::string_view fmt)
     throw format_error{ "Invalid index" };
 }
 
-template<class T, class... Args>
+template <class T, class... Args>
 void write_args(std::ostream& os, int index, std::string_view fmt, const T& arg, const Args&... args)
 {
     if (index == 0)
@@ -108,7 +108,7 @@ inline void do_format(std::ostream& os, std::string_view fmt, int arg_index, con
     throw format_error{ "unexpected opening bracket" };
 }
 
-template<class... Args>
+template <class... Args>
 std::string format(std::string_view fmt, const Args&... args)
 {
     const argument_extractor arg_extractor = [&](std::ostream& os, int index, std::string_view f) {
@@ -124,7 +124,7 @@ struct format_proxy_t
 {
     std::string_view fmt;
 
-    template<class... Args>
+    template <class... Args>
     std::string operator()(const Args&... args) const
     {
         return format(fmt, args...);

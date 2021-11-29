@@ -5,7 +5,7 @@
 
 namespace millrind
 {
-template<class Iter>
+template <class Iter>
 class stride_iterator : public iterator_facade<stride_iterator<Iter>>
 {
 public:

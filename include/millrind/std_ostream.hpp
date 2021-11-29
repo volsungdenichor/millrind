@@ -10,7 +10,7 @@ namespace millrind
 {
 namespace detail
 {
-template<class Tuple, size_t... I>
+template <class Tuple, size_t... I>
 void print_tuple(std::ostream& os, const Tuple& item, std::string_view separator, std::index_sequence<I...>)
 {
     (..., (os << (I != 0 ? separator : "") << std::get<I>(item)));
@@ -20,7 +20,7 @@ void print_tuple(std::ostream& os, const Tuple& item, std::string_view separator
 
 namespace std
 {
-template<class T>
+template <class T>
 ostream& operator<<(ostream& os, const optional<T>& item)
 {
     if (item)
@@ -29,13 +29,13 @@ ostream& operator<<(ostream& os, const optional<T>& item)
         return os << "none";
 }
 
-template<class T>
+template <class T>
 ostream& operator<<(ostream& os, const reference_wrapper<T>& item)
 {
     return os << item.get();
 }
 
-template<class... Args>
+template <class... Args>
 ostream& operator<<(ostream& os, const tuple<Args...>& item)
 {
     os << "(";
@@ -44,7 +44,7 @@ ostream& operator<<(ostream& os, const tuple<Args...>& item)
     return os;
 }
 
-template<class T, class U>
+template <class T, class U>
 ostream& operator<<(ostream& os, const pair<T, U>& item)
 {
     os << "(";

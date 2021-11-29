@@ -26,20 +26,20 @@ namespace detail
 {
 struct reverse_fn
 {
-    template<class Range>
+    template <class Range>
     auto operator()(Range&& range) const
     {
         return create(std::begin(range), std::end(range));
     }
 
-    template<class Iter>
+    template <class Iter>
     auto create(Iter b, Iter e) const
     {
         using result_type = std::reverse_iterator<Iter>;
         return make_range(result_type{ e }, result_type{ b });
     }
 
-    template<class Iter>
+    template <class Iter>
     auto create(std::reverse_iterator<Iter> b, std::reverse_iterator<Iter> e) const
     {
         using result_type = Iter;
@@ -47,7 +47,7 @@ struct reverse_fn
     }
 };
 
-template<class Iter, class A, class... Args>
+template <class Iter, class A, class... Args>
 auto _last(iterator_range<Iter> range, A p, Args&&... args) -> iterator_range<Iter>
 {
     static const auto reverse = pipeable{ reverse_fn{} }();
@@ -55,7 +55,7 @@ auto _last(iterator_range<Iter> range, A p, Args&&... args) -> iterator_range<It
     return make_range(range) | reverse | pipeable_adaptor | reverse;
 }
 
-template<class Iter, class A, class... Args>
+template <class Iter, class A, class... Args>
 auto _both(iterator_range<Iter> range, A p, Args&&... args) -> iterator_range<Iter>
 {
     static const auto reverse = pipeable{ reverse_fn{} }();
@@ -72,7 +72,7 @@ enum class direction
 
 struct generate_fn
 {
-    template<class Func>
+    template <class Func>
     auto operator()(Func func) const
     {
         using result_type = generating_iterator<Func>;
@@ -80,10 +80,10 @@ struct generate_fn
     }
 };
 
-template<direction Dir>
+template <direction Dir>
 struct take_fn
 {
-    template<class Range>
+    template <class Range>
     constexpr auto operator()(Range&& range, std::ptrdiff_t count) const
     {
         if constexpr (Dir == direction::left)
@@ -96,7 +96,7 @@ struct take_fn
         }
     }
 
-    template<class Iter>
+    template <class Iter>
     constexpr auto create(Iter b, Iter e, std::ptrdiff_t count) const
     {
         if constexpr (is_detected_v<random_access_iterator, Iter>)
@@ -113,10 +113,10 @@ struct take_fn
     }
 };
 
-template<direction Dir>
+template <direction Dir>
 struct drop_fn
 {
-    template<class Range>
+    template <class Range>
     constexpr auto operator()(Range&& range, std::ptrdiff_t count) const
     {
         if constexpr (Dir == direction::left)
@@ -133,17 +133,17 @@ struct drop_fn
         }
     }
 
-    template<class Iter>
+    template <class Iter>
     constexpr auto create(Iter b, Iter e, std::ptrdiff_t count) const
     {
         return make_range(advance(b, count, e), e);
     }
 };
 
-template<direction Dir, bool Expected>
+template <direction Dir, bool Expected>
 struct take_while_fn
 {
-    template<class Range, class Pred, class Proj = identity>
+    template <class Range, class Pred, class Proj = identity>
     constexpr auto operator()(Range&& range, Pred pred, Proj proj = {}) const
     {
         if constexpr (Dir == direction::left)
@@ -156,7 +156,7 @@ struct take_while_fn
         }
     }
 
-    template<class Iter, class Pred>
+    template <class Iter, class Pred>
     constexpr auto create(Iter b, Iter e, Pred&& pred) const
     {
         if constexpr (is_detected_v<random_access_iterator, Iter>)
@@ -173,10 +173,10 @@ struct take_while_fn
     }
 };
 
-template<direction Dir, bool Expected>
+template <direction Dir, bool Expected>
 struct drop_while_fn
 {
-    template<class Range, class Pred, class Proj = identity>
+    template <class Range, class Pred, class Proj = identity>
     constexpr auto operator()(Range&& range, Pred pred, Proj proj = {}) const
     {
         if constexpr (Dir == direction::left)
@@ -198,13 +198,13 @@ struct drop_while_fn
 
 struct stride_fn
 {
-    template<class Range>
+    template <class Range>
     auto operator()(Range&& range, std::ptrdiff_t step) const
     {
         return create(std::begin(range), std::end(range), step);
     }
 
-    template<class Iter>
+    template <class Iter>
     auto create(Iter b, Iter e, std::ptrdiff_t step) const
     {
         using result_type = stride_iterator<Iter>;
@@ -214,13 +214,13 @@ struct stride_fn
 
 struct iterate_fn
 {
-    template<class Range>
+    template <class Range>
     auto operator()(Range&& range) const
     {
         return create(std::begin(range), std::end(range));
     }
 
-    template<class Iter>
+    template <class Iter>
     auto create(Iter b, Iter e) const
     {
         using result_type = iterate_iterator<Iter>;
@@ -231,13 +231,13 @@ struct iterate_fn
 
 struct map_fn
 {
-    template<class Range, class Func, class Proj = identity>
+    template <class Range, class Func, class Proj = identity>
     auto operator()(Range&& range, Func func, Proj proj = {}) const
     {
         return create(std::begin(range), std::end(range), fn(std::move(proj), std::move(func)));
     }
 
-    template<class Iter, class Func>
+    template <class Iter, class Func>
     auto create(Iter b, Iter e, Func func) const
     {
         using result_type = map_iterator<Func, Iter>;
@@ -246,10 +246,10 @@ struct map_fn
     }
 };
 
-template<bool Expected>
+template <bool Expected>
 struct filter_fn
 {
-    template<class Range, class Pred, class Proj = identity>
+    template <class Range, class Pred, class Proj = identity>
     auto operator()(Range&& range, Pred pred, Proj proj = {}) const
     {
         if constexpr (Expected)
@@ -258,7 +258,7 @@ struct filter_fn
             return create(std::begin(range), std::end(range), fn(std::move(proj), std::not_fn(pred)));
     }
 
-    template<class Iter, class Pred>
+    template <class Iter, class Pred>
     auto create(Iter b, Iter e, Pred pred) const
     {
         using result_type = filter_iterator<Pred, Iter>;
@@ -269,13 +269,13 @@ struct filter_fn
 
 struct flat_map_fn
 {
-    template<class Range, class Func, class Proj = identity>
+    template <class Range, class Func, class Proj = identity>
     auto operator()(Range&& range, Func pred, Proj proj = {}) const
     {
         return create(std::begin(range), std::end(range), fn(std::move(proj), std::move(pred)));
     }
 
-    template<class Iter, class Func>
+    template <class Iter, class Func>
     auto create(Iter b, Iter e, Func func) const
     {
         using result_type = flat_map_iterator<Func, Iter>;
@@ -286,7 +286,7 @@ struct flat_map_fn
 
 struct flatten_fn
 {
-    template<class Range>
+    template <class Range>
     auto operator()(Range&& range) const
     {
         return flat_map_fn{}(make_range(range), identity{});
@@ -295,13 +295,13 @@ struct flatten_fn
 
 struct filter_map_fn
 {
-    template<class Range, class Func, class Proj = identity>
+    template <class Range, class Func, class Proj = identity>
     auto operator()(Range&& range, Func pred, Proj proj = {}) const
     {
         return create(std::begin(range), std::end(range), fn(std::move(proj), std::move(pred)));
     }
 
-    template<class Iter, class Func>
+    template <class Iter, class Func>
     auto create(Iter b, Iter e, Func func) const
     {
         using result_type = filter_map_iterator<Func, Iter>;
@@ -312,13 +312,13 @@ struct filter_map_fn
 
 struct enumerate_fn
 {
-    template<class Range>
+    template <class Range>
     auto operator()(Range&& range, std::ptrdiff_t start = 0) const
     {
         return create(std::begin(range), std::end(range), start);
     }
 
-    template<class Iter>
+    template <class Iter>
     auto create(Iter b, Iter e, std::ptrdiff_t start) const
     {
         using result_type = enumerating_iterator<Iter>;
@@ -332,25 +332,25 @@ struct enumerate_fn
 
 struct concat_fn
 {
-    template<class Range>
+    template <class Range>
     auto operator()(Range&& range) const
     {
         return make_range(std::begin(range), std::end(range));
     }
 
-    template<class Range1, class Range2>
+    template <class Range1, class Range2>
     auto operator()(Range1&& range1, Range2&& range2) const
     {
         return create(std::begin(range1), std::end(range1), std::begin(range2), std::end(range2));
     }
 
-    template<class Range1, class Range2, class... Tail>
+    template <class Range1, class Range2, class... Tail>
     auto operator()(Range1&& range1, Range2&& range2, Tail&&... tail) const
     {
         return (*this)((*this)(make_range(range1), make_range(range2)), std::forward<Tail>(tail)...);
     }
 
-    template<class Iter1, class Iter2>
+    template <class Iter1, class Iter2>
     auto create(Iter1 b1, Iter1 e1, Iter2 b2, Iter2 e2) const
     {
         using result_type = chain_iterator<Iter1, Iter2>;
@@ -361,7 +361,7 @@ struct concat_fn
 
 struct zip_transform_fn
 {
-    template<class Func, class... Ranges>
+    template <class Func, class... Ranges>
     auto operator()(const Func& func, Ranges&&... ranges) const
     {
         return make_range(
@@ -374,14 +374,14 @@ struct zip_fn
 {
     struct to_tuple_fn
     {
-        template<class... Args>
+        template <class... Args>
         constexpr auto operator()(Args&&... args) const
         {
             return std::tuple<Args...>{ std::forward<Args>(args)... };
         }
     };
 
-    template<class... Ranges>
+    template <class... Ranges>
     auto operator()(Ranges&&... ranges) const
     {
         return zip_transform_fn{}(to_tuple_fn{}, make_range(ranges)...);
@@ -390,7 +390,7 @@ struct zip_fn
 
 struct adjacent_fn
 {
-    template<class Range>
+    template <class Range>
     auto operator()(Range&& range) const
     {
         return zip_fn{}(
@@ -401,7 +401,7 @@ struct adjacent_fn
 
 struct adjacent_transform_fn
 {
-    template<class Range, class Func, class Proj = identity>
+    template <class Range, class Func, class Proj = identity>
     auto operator()(Range&& range, Func func, Proj proj = {}) const
     {
         return zip_transform_fn{}(
@@ -413,14 +413,14 @@ struct adjacent_transform_fn
 
 struct iota_fn
 {
-    template<class T>
+    template <class T>
     auto operator()(T lo, T up) const
     {
         using result_type = numeric_iterator<T>;
         return make_range(result_type{ lo }, result_type{ up });
     }
 
-    template<class T>
+    template <class T>
     auto operator()(T up) const
     {
         return (*this)(T{}, up);
@@ -429,7 +429,7 @@ struct iota_fn
 
 struct owned_fn
 {
-    template<class Container>
+    template <class Container>
     auto operator()(Container container) const
     {
         using result_type = owning_iterator<iterator_t<Container>, Container>;
@@ -437,7 +437,7 @@ struct owned_fn
         return make_range(result_type{ std::begin(*ptr), ptr }, result_type{ std::end(*ptr), ptr });
     }
 
-    template<class T>
+    template <class T>
     auto operator()(std::initializer_list<T> init) const
     {
         return (*this)(std::vector<T>{ init });
@@ -446,7 +446,7 @@ struct owned_fn
 
 struct repeat_fn
 {
-    template<class T>
+    template <class T>
     auto operator()(T value, std::ptrdiff_t count) const
     {
         using result_type = repeat_iterator<T>;
@@ -456,7 +456,7 @@ struct repeat_fn
 
 struct copy_fn
 {
-    template<class Range, class Output>
+    template <class Range, class Output>
     auto operator()(Range&& range, Output output) const
     {
         return copy(make_range(range), output);
@@ -465,7 +465,7 @@ struct copy_fn
 
 struct for_each_fn
 {
-    template<class Range, class Func, class Proj = identity>
+    template <class Range, class Func, class Proj = identity>
     auto operator()(Range&& range, Func func, Proj proj = {}) const
     {
         return for_each(make_range(range), ref(func), ref(proj));
@@ -474,13 +474,13 @@ struct for_each_fn
 
 struct cache_latest_fn
 {
-    template<class Range>
+    template <class Range>
     auto operator()(Range&& range) const
     {
         return create(std::begin(range), std::end(range));
     }
 
-    template<class Iter>
+    template <class Iter>
     auto create(Iter b, Iter e) const
     {
         using result_type = cache_latest_iterator<Iter>;
@@ -490,7 +490,7 @@ struct cache_latest_fn
 
 struct front_fn
 {
-    template<class Range>
+    template <class Range>
     decltype(auto) operator()(Range&& range) const
     {
         auto b = std::begin(range);
@@ -559,7 +559,7 @@ static constexpr inline auto generate = detail::generate_fn{};
 
 }  // namespace seq
 
-template<class T>
+template <class T>
 using iterable = iterator_range<any_iterator<T>>;
 
 }  // namespace millrind
